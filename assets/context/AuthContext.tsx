@@ -25,15 +25,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const storedToken = localStorage.getItem("jwt_token");
-        const storedUser = localStorage.getItem("authUser");
         if (storedToken) setToken(storedToken);
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
     }, []);
 
     useEffect(() => {
-        if (token && !user) {
+        if (token) {
             fetchUser();
         }
     }, [token]);
@@ -43,24 +39,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await authApi.me();
             setUser(response.data);
-            localStorage.setItem("authUser", JSON.stringify(response.data));
         } catch (err) {
             setUser(null);
-            localStorage.removeItem("authUser");
         }
     };
 
     const login = async (result: AuthResult) => {
         localStorage.setItem("jwt_token", result.token);
         setToken(result.token);
-        await fetchUser();
     };
 
     const logout = () => {
         setToken(null);
         setUser(null);
         localStorage.removeItem("jwt_token");
-        localStorage.removeItem("authUser");
     };
 
     return (

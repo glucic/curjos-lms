@@ -22,8 +22,13 @@ const Home: React.FC = () => {
                     sx={{ fontSize: 80, color: "primary.main", mb: 2 }}
                 />
 
-                <Typography component="h1" variant="h2" gutterBottom>
-                    Welcome to Curjos LMS
+                <Typography
+                    component="h1"
+                    variant="h2"
+                    align="center"
+                    gutterBottom
+                >
+                    Welcome to Curjos LMS!
                 </Typography>
 
                 <Typography

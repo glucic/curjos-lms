@@ -12,13 +12,24 @@ export interface LoginFormData {
     password: string;
 }
 
+export interface Organization {
+    id: number;
+    name: string;
+    slug: string;
+    isSystemOrganization: boolean;
+}
+
 export interface AuthResult {
     token: string;
     user: {
-        id: string;
+        id: number;
         email: string;
         firstName: string;
         lastName: string;
-        organization: string;
+        isActive: boolean;
+        createdAt: string;
+        organization: Organization;
+        roles: string[];
+        permissions: string[];
     };
 }
