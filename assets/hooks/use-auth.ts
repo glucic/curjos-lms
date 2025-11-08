@@ -62,14 +62,13 @@ export function useAuth() {
             const axiosError = err as AxiosError<ApiError>;
             if (axiosError.response?.data) {
                 const apiError = axiosError.response.data;
-                if (apiError.details && Array.isArray(apiError.details)) {
-                    const errors: Record<string, string> = {};
-                    apiError.details.forEach((detail) => {
-                        errors[detail.property] = detail.message;
+                if (apiError.message) {
+                    setValidationErrors({
+                        email: apiError.message,
+                        password: apiError.message,
                     });
-                    setValidationErrors(errors);
                 } else {
-                    setError(apiError.message || "Login failed");
+                    setError("Login failed");
                 }
             } else {
                 setError("Network error. Please try again.");
