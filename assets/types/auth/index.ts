@@ -19,17 +19,19 @@ export interface Organization {
     isSystemOrganization: boolean;
 }
 
+export interface User {
+    id: number;
+    email: string;
+    firstName: string;
+    lastName: string;
+    isActive: boolean;
+    createdAt: string;
+    organization: Organization;
+    roles: string[];
+    permissions: string[];
+}
+
 export interface AuthResult {
     token: string;
-    user: {
-        id: number;
-        email: string;
-        firstName: string;
-        lastName: string;
-        isActive: boolean;
-        createdAt: string;
-        organization: Organization;
-        roles: string[];
-        permissions: string[];
-    };
+    user: User;
 }

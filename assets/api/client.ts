@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { RegisterFormData, LoginFormData } from "../types/auth";
+import { RegisterFormData, LoginFormData } from "@/types/auth";
 const API_BASE_URL = "/api";
 
 const apiClient = axios.create({
@@ -39,6 +39,11 @@ export const authApi = {
     login: (data: LoginFormData) => apiClient.post("/auth/login", data),
 
     me: () => apiClient.get("/auth/me"),
+};
+
+export const courseApi = {
+    getCourses: () => apiClient.get("/courses"),
+    getCourse: (courseId: number) => apiClient.get(`/courses/${courseId}`),
 };
 
 export interface ApiError {

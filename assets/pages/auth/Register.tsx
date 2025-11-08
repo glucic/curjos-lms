@@ -30,7 +30,7 @@ const Register: React.FC = () => {
         email: "",
         password: "",
         confirmPassword: "",
-        organization: "demo-university",
+        organization: "",
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,9 +171,8 @@ const Register: React.FC = () => {
                             error={!!validationErrors.organization}
                             helperText={
                                 validationErrors.organization ||
-                                "Use: demo-university"
+                                "Type your organization's name (e.g., 'demo-university') (normally this would be an invite link)"
                             }
-                            disabled
                         />
 
                         <Button
