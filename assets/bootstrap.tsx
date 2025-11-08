@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import App from "./App";
+import { AuthProvider } from "@/context/AuthContext";
 
 const theme = createTheme({
     palette: {
@@ -20,12 +21,12 @@ if (!container) throw new Error("Failed to find the root element");
 const root = createRoot(container);
 
 root.render(
-    <React.StrictMode>
+    <AuthProvider>
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <BrowserRouter>
                 <App />
             </BrowserRouter>
         </ThemeProvider>
-    </React.StrictMode>
+    </AuthProvider>
 );

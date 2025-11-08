@@ -2,29 +2,53 @@ import React from "react";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import SchoolIcon from "@mui/icons-material/School";
+import { Link } from "react-router-dom";
+import { useAuthContext } from "@/context/AuthContext";
 
 const Navbar: React.FC = () => {
+    const { user, isAuthenticated, logout } = useAuthContext();
+
     return (
-        <AppBar position="static">
+        <AppBar position="sticky">
             <Toolbar>
-                <SchoolIcon sx={{ mr: 2 }} />
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Curjos LMS
+                    <Button color="inherit" component={RouterLink} to="/">
+                        <SchoolIcon sx={{ mr: 2 }} />
+                        <Typography variant="h6">Curjos LMS</Typography>
+                    </Button>
                 </Typography>
                 <Box>
-                    <Button color="inherit" component={RouterLink} to="/">
-                        Home
-                    </Button>
-                    <Button
-                        color="inherit"
-                        component={RouterLink}
-                        to="/register"
-                    >
-                        Register
-                    </Button>
-                    <Button color="inherit" component={RouterLink} to="/login">
-                        Login
-                    </Button>
+                    {isAuthenticated && user ? (
+                        <>
+                            <Button
+                                color="inherit"
+                                component={RouterLink}
+                                to="/profile"
+                            >
+                                {user.firstName} {user.lastName}
+                            </Button>
+                            <Button color="inherit" onClick={logout}>
+                                Logout
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                color="inherit"
+                                component={RouterLink}
+                                to="/login"
+                            >
+                                Login
+                            </Button>
+                            <Button
+                                color="inherit"
+                                component={RouterLink}
+                                to="/register"
+                            >
+                                Register
+                            </Button>
+                        </>
+                    )}
                 </Box>
             </Toolbar>
         </AppBar>

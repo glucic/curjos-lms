@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi, ApiError } from "@/api/client";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { RegisterFormData, LoginFormData, AuthResult } from "@/types/auth";
+import { useAuthContext } from "@/context/AuthContext";
 
 export function useAuth() {
     const navigate = useNavigate();
@@ -11,6 +12,7 @@ export function useAuth() {
     const [validationErrors, setValidationErrors] = useState<
         Record<string, string>
     >({});
+    const { login: setAuthLogin, logout: setAuthLogout } = useAuthContext();
 
     const handleRegister = async (formData: RegisterFormData) => {
         setError(null);
@@ -54,6 +56,7 @@ export function useAuth() {
         setLoading(true);
         try {
             const result = await authApi.login(formData);
+            setAuthLogin(result.data);
             navigate("/");
         } catch (err) {
             const axiosError = err as AxiosError<ApiError>;
@@ -82,5 +85,6 @@ export function useAuth() {
         validationErrors,
         handleRegister,
         handleLogin,
+        logout: setAuthLogout,
     };
 }
