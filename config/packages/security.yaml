@@ -12,13 +12,33 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        login:
+            pattern: ^/api/auth/login
+            stateless: true
+            json_login:
+                check_path: /api/auth/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
         main:
-            lazy: true
-            provider: app_user_provider
+            pattern: ^/api
+            stateless: true
+            jwt: ~
 
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/super, roles: ROLE_SUPER_ADMIN }
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/instructor, roles: ROLE_INSTRUCTOR }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
+    role_hierarchy:
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_INSTRUCTOR, ROLE_STUDENT, ROLE_USER]
+        ROLE_ADMIN: [ROLE_INSTRUCTOR, ROLE_STUDENT, ROLE_USER]
+        ROLE_INSTRUCTOR: [ROLE_STUDENT, ROLE_USER]
+        ROLE_STUDENT: [ROLE_USER]
 
 when@test:
     security:
