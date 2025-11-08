@@ -189,6 +189,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function isSystemUser(): bool
+    {
+        return $this->organization !== null && $this->organization->isSystemOrganization();
+    }
+
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;

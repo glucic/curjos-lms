@@ -29,8 +29,8 @@ class Organization
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isActive = true;
 
-    #[ORM\Column(type: 'json', nullable: true)]
-    private ?array $settings = [];
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isSystemOrganization = false;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt = null;
@@ -108,27 +108,14 @@ class Organization
         return $this;
     }
 
-    public function getSettings(): ?array
+    public function isSystemOrganization(): bool
     {
-        return $this->settings;
+        return $this->isSystemOrganization;
     }
 
-    public function setSettings(?array $settings): static
+    public function setIsSystemOrganization(bool $isSystemOrganization): static
     {
-        $this->settings = $settings;
-
-        return $this;
-    }
-
-    public function getSetting(string $key, mixed $default = null): mixed
-    {
-        return $this->settings[$key] ?? $default;
-    }
-
-    public function setSetting(string $key, mixed $value): static
-    {
-        $this->settings[$key] = $value;
-
+        $this->isSystemOrganization = $isSystemOrganization;
         return $this;
     }
 
