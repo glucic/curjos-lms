@@ -30,7 +30,7 @@ class AppFixtures extends Fixture
         $demoOrg = $this->createDemoOrganization($manager);
         $demoRoles = $this->createStandardRoles($manager, $demoOrg, $permissions);
         $this->createDemoUsers($manager, $demoOrg, $demoRoles);
-        
+                
         $manager->flush();
     }
 
@@ -220,6 +220,8 @@ class AppFixtures extends Fixture
         $instructor->addRole($roles['instructor']);
         $manager->persist($instructor);
 
+        $this->createDemoCourses($manager, $organization, $instructor);
+
         $student = new User();
         $student->setEmail('student@demo.com');
         $student->setFirstName('Bob');
@@ -229,5 +231,43 @@ class AppFixtures extends Fixture
         $student->setPassword($this->passwordHasher->hashPassword($student, 'student123'));
         $student->addRole($roles['student']);
         $manager->persist($student);
+    }
+
+    private function createDemoCourses(ObjectManager $manager, Organization $organization, User $instructor): void
+    {
+        $course = new \App\Entity\Course();
+        $course->setTitle('Introduction to Leadership');
+        $course->setDescription('A beginner course on leadership principles.');
+        $course->setOrganization($organization);
+        $course->setInstructor($instructor);
+        $manager->persist($course);
+
+        $lesson1 = new \App\Entity\Lesson();
+        $lesson1->setTitle('Welcome Video');
+        $lesson1->setType('video');
+        $lesson1->setDescription('Introduction to the course.');
+        $lesson1->setResourceUrl('https://example.com/welcome.mp4');
+        $lesson1->setCourse($course);
+        $manager->persist($lesson1);
+
+        $lesson2 = new \App\Entity\Lesson();
+        $lesson2->setTitle('Leadership PDF');
+        $lesson2->setType('pdf');
+        $lesson2->setDescription('Downloadable leadership guide.');
+        $lesson2->setResourceUrl('https://example.com/leadership.pdf');
+        $lesson2->setCourse($course);
+        $manager->persist($lesson2);
+
+        $lesson3 = new \App\Entity\Lesson();
+        $lesson3->setTitle('Self-Assessment Exercise');
+        $lesson3->setType('exercise');
+        $lesson3->setDescription('Complete the self-assessment.');
+        $lesson3->setResourceUrl(null);
+        $lesson3->setCourse($course);
+        $manager->persist($lesson3);
+
+        $course->addLesson($lesson1);
+        $course->addLesson($lesson2);   
+        $course->addLesson($lesson3);
     }
 }

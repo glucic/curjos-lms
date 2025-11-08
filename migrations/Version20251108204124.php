@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20251108120647 extends AbstractMigration
+final class Version20251108204124 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,6 +20,11 @@ final class Version20251108120647 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE TABLE courses (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, organization_id INTEGER NOT NULL, instructor_id INTEGER NOT NULL, title VARCHAR(255) NOT NULL, description CLOB DEFAULT NULL, CONSTRAINT FK_A9A55A4C32C8A3DE FOREIGN KEY (organization_id) REFERENCES organizations (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_A9A55A4C8C4FC193 FOREIGN KEY (instructor_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
+        $this->addSql('CREATE INDEX IDX_A9A55A4C32C8A3DE ON courses (organization_id)');
+        $this->addSql('CREATE INDEX IDX_A9A55A4C8C4FC193 ON courses (instructor_id)');
+        $this->addSql('CREATE TABLE lessons (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, course_id INTEGER NOT NULL, title VARCHAR(255) NOT NULL, description CLOB DEFAULT NULL, type VARCHAR(50) NOT NULL, resource_url VARCHAR(255) DEFAULT NULL, CONSTRAINT FK_3F4218D9591CC992 FOREIGN KEY (course_id) REFERENCES courses (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
+        $this->addSql('CREATE INDEX IDX_3F4218D9591CC992 ON lessons (course_id)');
         $this->addSql('CREATE TABLE organizations (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(255) NOT NULL, slug VARCHAR(255) NOT NULL, is_active BOOLEAN DEFAULT 1 NOT NULL, is_system_organization BOOLEAN DEFAULT 0 NOT NULL, created_at DATETIME NOT NULL --(DC2Type:datetime_immutable)
         , updated_at DATETIME DEFAULT NULL --(DC2Type:datetime_immutable)
         )');
@@ -54,6 +59,8 @@ final class Version20251108120647 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('DROP TABLE courses');
+        $this->addSql('DROP TABLE lessons');
         $this->addSql('DROP TABLE organizations');
         $this->addSql('DROP TABLE permissions');
         $this->addSql('DROP TABLE roles');

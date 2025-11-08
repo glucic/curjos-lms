@@ -49,10 +49,14 @@ class Organization
     #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Role::class)]
     private Collection $roles;
 
+    #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Course::class)]
+    private Collection $courses;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->roles = new ArrayCollection();
+        $this->courses = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -199,6 +203,36 @@ class Organization
         if ($this->roles->removeElement($role)) {
             if ($role->getOrganization() === $this) {
                 $role->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    
+    /**
+     * @return Collection<int, Course>
+     */
+    public function getCourses(): Collection
+    {
+        return $this->courses;
+    }
+
+    public function addCourse(Course $course): static
+    {
+        if (!$this->courses->contains($course)) {
+            $this->courses->add($course);
+            $course->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCourse(Course $course): static
+    {
+        if ($this->courses->removeElement($course)) {
+            if ($course->getOrganization() === $this) {
+                $course->setOrganization(null);
             }
         }
 
