@@ -75,6 +75,24 @@ const Course: React.FC = () => {
                                 >
                                     {lesson.content}
                                 </Typography>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    {lesson.difficulty ? (
+                                        <>
+                                            Difficulty Level:{" "}
+                                            {Array.from(
+                                                { length: lesson.difficulty },
+                                                (_, i) => (
+                                                    <span key={i}>⭐</span>
+                                                )
+                                            )}
+                                        </>
+                                    ) : (
+                                        ""
+                                    )}
+                                </Typography>
                             </CardContent>
                         </Card>
                     </ListItem>

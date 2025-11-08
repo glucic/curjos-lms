@@ -16,9 +16,6 @@ class RoleRepository extends ServiceEntityRepository
         parent::__construct($registry, Role::class);
     }
 
-    /**
-     * Find roles by organization
-     */
     public function findByOrganization(int $organizationId): array
     {
         return $this->createQueryBuilder('r')
@@ -29,9 +26,6 @@ class RoleRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Find system roles
-     */
     public function findSystemRoles(): array
     {
         return $this->createQueryBuilder('r')
@@ -42,9 +36,6 @@ class RoleRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Find role by name within an organization
-     */
     public function findOneByNameAndOrganization(string $name, int $organizationId): ?Role
     {
         return $this->createQueryBuilder('r')

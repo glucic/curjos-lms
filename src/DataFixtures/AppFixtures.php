@@ -248,6 +248,7 @@ class AppFixtures extends Fixture
         $lesson1->setDescription('Introduction to the course.');
         $lesson1->setResourceUrl('https://example.com/welcome.mp4');
         $lesson1->setCourse($course);
+        $lesson1->setDifficulty(difficulty: 0);
         $manager->persist($lesson1);
 
         $lesson2 = new \App\Entity\Lesson();
@@ -256,6 +257,7 @@ class AppFixtures extends Fixture
         $lesson2->setDescription('Downloadable leadership guide.');
         $lesson2->setResourceUrl('https://example.com/leadership.pdf');
         $lesson2->setCourse($course);
+        $lesson2->setDifficulty(difficulty: 1);
         $manager->persist($lesson2);
 
         $lesson3 = new \App\Entity\Lesson();
@@ -264,6 +266,7 @@ class AppFixtures extends Fixture
         $lesson3->setDescription('Complete the self-assessment.');
         $lesson3->setResourceUrl(null);
         $lesson3->setCourse($course);
+        $lesson3->setDifficulty(difficulty: 2);
         $manager->persist($lesson3);
 
         $course->addLesson($lesson1);

@@ -16,9 +16,6 @@ class PermissionRepository extends ServiceEntityRepository
         parent::__construct($registry, Permission::class);
     }
 
-    /**
-     * Find permission by name
-     */
     public function findOneByName(string $name): ?Permission
     {
         return $this->createQueryBuilder('p')
@@ -28,9 +25,6 @@ class PermissionRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    /**
-     * Find permissions by resource
-     */
     public function findByResource(string $resource): array
     {
         return $this->createQueryBuilder('p')
@@ -41,9 +35,6 @@ class PermissionRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Find all permissions grouped by resource
-     */
     public function findAllGroupedByResource(): array
     {
         $permissions = $this->createQueryBuilder('p')

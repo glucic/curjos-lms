@@ -66,6 +66,17 @@ class Course
         return $this->description;
     }
 
+    /**
+     * Get highest lesson difficulty
+     * @return int
+     */
+    #[Groups(['me:read'])]
+    public function getDifficulty(): int
+    {
+        $difficulties = $this->lessons->map(fn(Lesson $lesson) => $lesson->getDifficulty())->toArray();
+        return !empty($difficulties) ? max($difficulties) : 0;
+    }
+
     public function setDescription(?string $description): static
     {
         $this->description = $description;

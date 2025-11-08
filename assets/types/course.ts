@@ -6,10 +6,12 @@ export interface Course {
     description: string;
     lessons?: Lesson[];
     instructor: User;
+    difficulty?: number;
 }
 
 export interface Lesson {
     id: number;
     title: string;
     content: string;
+    difficulty: number;
 }

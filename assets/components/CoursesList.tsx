@@ -49,6 +49,24 @@ const CoursesList: React.FC = () => {
                                 >
                                     {course.description}
                                 </Typography>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                >
+                                    {course.difficulty ? (
+                                        <>
+                                            Difficulty Level:{" "}
+                                            {Array.from(
+                                                { length: course.difficulty },
+                                                (_, i) => (
+                                                    <span key={i}>⭐</span>
+                                                )
+                                            )}
+                                        </>
+                                    ) : (
+                                        ""
+                                    )}
+                                </Typography>
                             </CardContent>
                             <CardActions>
                                 <Button

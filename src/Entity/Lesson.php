@@ -4,6 +4,7 @@ namespace App\Entity;
 use App\Repository\LessonRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LessonRepository::class)]
 #[ORM\Table(name: 'lessons')]
@@ -22,6 +23,11 @@ class Lesson
     #[Groups(['me:read'])]
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
+
+    #[ORM\Column(type: 'integer', nullable: false)]
+    #[Assert\Range(min: 0, max: 5, notInRangeMessage: 'Difficulty must be between {{ min }} and {{ max }}.')]
+    #[Groups(['me:read'])]
+    private int $difficulty = 0; // Difficulty level from 0 (easy) to 5 (hard)
 
     #[Groups(['me:read'])]
     #[ORM\Column(length: 50)]
@@ -59,6 +65,17 @@ class Lesson
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+        return $this;
+    }
+
+    public function getDifficulty(): int
+    {
+        return $this->difficulty;
+    }
+
+    public function setDifficulty(int $difficulty): static
+    {
+        $this->difficulty = $difficulty;
         return $this;
     }
 
