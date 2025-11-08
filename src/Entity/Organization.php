@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 #[ORM\Table(name: 'organizations')]
@@ -18,18 +19,22 @@ class Organization
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['me:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['me:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['me:read'])]
     private ?string $slug = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $isActive = true;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    #[Groups(['me:read'])]
     private bool $isSystemOrganization = false;
 
     #[ORM\Column(type: 'datetime_immutable')]
@@ -49,7 +54,6 @@ class Organization
         $this->users = new ArrayCollection();
         $this->roles = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
-        $this->settings = [];
     }
 
     #[ORM\PreUpdate]

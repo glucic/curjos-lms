@@ -9,6 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
@@ -19,24 +21,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['me:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Groups(['me:read'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['me:read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['me:read'])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    #[Groups(['me:read'])]
     private bool $isActive = true;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Groups(['me:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
@@ -44,10 +52,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['me:read'])]
     private ?Organization $organization = null;
 
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
     #[ORM\JoinTable(name: 'user_roles')]
+    #[Groups(['me:read'])]
     private Collection $roles;
 
     public function __construct()
@@ -108,13 +118,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getRoles(): array
     {
-        $roles = ['ROLE_USER'];
-
-        foreach ($this->roles as $role) {
-            $roles[] = $role->getName();
-        }
-
-        return array_unique($roles);
+        return array_map(fn(Role $role) => $role->getName(), $this->roles->toArray());
     }
 
     /**
@@ -258,5 +262,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return false;
+    }
+
+    #[Groups(['me:read'])]
+    #[SerializedName('permissions')]
+    public function getSerializedPermissions(): array
+    {
+        $permissions = [];
+        foreach ($this->getRoleEntities() as $role) {
+            foreach ($role->getPermissions() as $permission) {
+                $permissions[$permission->getName()] = true;
+            }
+        }
+        return array_keys($permissions);
     }
 }

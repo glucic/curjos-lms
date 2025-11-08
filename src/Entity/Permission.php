@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\PermissionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: PermissionRepository::class)]
 #[ORM\Table(name: 'permissions')]
@@ -18,6 +19,7 @@ class Permission
     private ?int $id = null;
 
     #[ORM\Column(length: 100, unique: true)]
+    #[Groups(['me:read'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50)]
