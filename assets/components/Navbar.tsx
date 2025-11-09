@@ -23,7 +23,7 @@ const Navbar: React.FC = () => {
                     </Button>
                 </Typography>
                 <Box>
-                    {isAuthenticated && user ? (
+                    {isAuthenticated && user && (
                         <>
                             <Button
                                 color="inherit"
@@ -34,23 +34,6 @@ const Navbar: React.FC = () => {
                             </Button>
                             <Button color="inherit" onClick={handleLogout}>
                                 Logout
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button
-                                color="inherit"
-                                component={RouterLink}
-                                to="/login"
-                            >
-                                Login
-                            </Button>
-                            <Button
-                                color="inherit"
-                                component={RouterLink}
-                                to="/register"
-                            >
-                                Register
                             </Button>
                         </>
                     )}

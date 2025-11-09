@@ -23,6 +23,10 @@ const Login: React.FC = () => {
         password: "",
     });
 
+    if (useAuthContext().isAuthenticated) {
+        navigate("/", { replace: true });
+    }
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -59,7 +63,7 @@ const Login: React.FC = () => {
                         align="center"
                         sx={{ mb: 3 }}
                     >
-                        Welcome back! Please sign in to continue.
+                        Welcome! Please sign in to continue.
                     </Typography>
 
                     {error && (
@@ -112,17 +116,6 @@ const Login: React.FC = () => {
                         >
                             {loading ? <CircularProgress size={24} /> : "Login"}
                         </Button>
-
-                        <Box sx={{ textAlign: "center" }}>
-                            <Link
-                                component="button"
-                                variant="body2"
-                                onClick={() => navigate("/register")}
-                                type="button"
-                            >
-                                Don't have an account? Register
-                            </Link>
-                        </Box>
                     </Box>
                 </Paper>
             </Box>

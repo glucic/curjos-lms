@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { courseApi, ApiError } from "@/api/client";
 import { Course, Lesson } from "@/types/course";
 
-export const useCourseData = (courseId?: number) => {
+export const useCourseData = (courseId?: number, lessonId?: number) => {
     const [courses, setCourses] = useState<Course[] | null>(null);
     const [course, setCourse] = useState<Course | null>(null);
     const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -111,9 +111,14 @@ export const useCourseData = (courseId?: number) => {
     );
 
     useEffect(() => {
-        if (courseId) fetchCourse(courseId);
-        else fetchCourses();
-    }, [courseId, fetchCourse, fetchCourses]);
+        if (lessonId && courseId) {
+            fetchLesson(courseId, lessonId);
+        } else if (courseId) {
+            fetchCourse(courseId);
+        } else {
+            fetchCourses();
+        }
+    }, [courseId, lessonId, fetchCourse, fetchCourses, fetchLesson]);
 
     return {
         courses,

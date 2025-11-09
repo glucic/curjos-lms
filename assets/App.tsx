@@ -5,10 +5,10 @@ import Home from "@/pages/Home";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import Course from "@/pages/Course";
-import CreateCourse from "./pages/CreateCourse";
-import CreateLesson from "./pages/CreateLesson";
-import Lesson from "./pages/Lesson";
-import RoleGuard from "./RoleGuard";
+import CreateCourse from "@/pages/CreateCourse";
+import CreateLesson from "@/pages/CreateLesson";
+import Lesson from "@/pages/Lesson";
+import RoleGuard from "@/RoleGuard";
 
 const App: React.FC = () => {
     return (
@@ -25,6 +25,7 @@ const App: React.FC = () => {
                                 "ROLE_STUDENT",
                                 "ROLE_INSTRUCTOR",
                                 "ROLE_ADMIN",
+                                "ROLE_SUPER_ADMIN",
                             ]}
                         >
                             <Course />
@@ -35,7 +36,11 @@ const App: React.FC = () => {
                     path="/course/create"
                     element={
                         <RoleGuard
-                            allowedRoles={["ROLE_INSTRUCTOR", "ROLE_ADMIN"]}
+                            allowedRoles={[
+                                "ROLE_INSTRUCTOR",
+                                "ROLE_ADMIN",
+                                "ROLE_SUPER_ADMIN",
+                            ]}
                         >
                             <CreateCourse />
                         </RoleGuard>
@@ -49,6 +54,7 @@ const App: React.FC = () => {
                                 "ROLE_STUDENT",
                                 "ROLE_INSTRUCTOR",
                                 "ROLE_ADMIN",
+                                "ROLE_SUPER_ADMIN",
                             ]}
                         >
                             <Lesson />
@@ -59,7 +65,11 @@ const App: React.FC = () => {
                     path="/course/:courseId/lesson/create"
                     element={
                         <RoleGuard
-                            allowedRoles={["ROLE_INSTRUCTOR", "ROLE_ADMIN"]}
+                            allowedRoles={[
+                                "ROLE_INSTRUCTOR",
+                                "ROLE_ADMIN",
+                                "ROLE_SUPER_ADMIN",
+                            ]}
                         >
                             <CreateLesson />
                         </RoleGuard>

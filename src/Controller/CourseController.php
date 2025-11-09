@@ -33,7 +33,7 @@ class CourseController extends AbstractController
         $courses = $this->entityManager->getRepository(Course::class)
             ->findByOrganization($organization);
 
-        return $this->success(data: $courses, status: 200, context: ['groups' => ['course:view']]);
+        return $this->success(data: $courses, status: 200, context: ['groups' => [Permissions::COURSE_VIEW->value]]);
     }
 
     #[Route('/{id}', name: 'api_courses_show', methods: ['GET'])]
@@ -53,7 +53,7 @@ class CourseController extends AbstractController
             return $this->error('Course not found', 'not_found', 404);
         }
 
-        return $this->success(data: $course, status: 200, context: ['groups' => ['course:view', 'lesson:view']]);
+        return $this->success(data: $course, status: 200, context: ['groups' => [Permissions::COURSE_VIEW->value, Permissions::LESSON_VIEW->value]]);
     }
 
     #[Route('', name: 'api_courses_create', methods: ['POST'])]

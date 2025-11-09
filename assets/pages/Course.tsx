@@ -9,6 +9,7 @@ import {
     Divider,
     Button,
     Box,
+    CircularProgress,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/context/AuthContext";
@@ -21,9 +22,25 @@ const Course: React.FC = () => {
     const { user } = useAuthContext();
     const isNotStudent = user && !user.roles.includes("ROLE_STUDENT");
 
-    const { course, error } = useCourseData(
+    const { course, loading, error } = useCourseData(
         courseId ? parseInt(courseId) : undefined
     );
+
+    if (loading) {
+        return (
+            <Container
+                maxWidth="lg"
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "80vh",
+                }}
+            >
+                <CircularProgress />
+            </Container>
+        );
+    }
 
     if (error || !course) {
         return (

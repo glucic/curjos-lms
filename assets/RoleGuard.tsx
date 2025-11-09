@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/context/AuthContext";
-import { Container, CircularProgress } from "@mui/material";
+import { CircularProgress, Container } from "@mui/material";
 
 interface RoleGuardProps {
     allowedRoles: string[];
@@ -14,51 +14,54 @@ const RoleGuard: React.FC<RoleGuardProps> = ({
     children,
     fallbackPath = "/",
 }) => {
-    const { user, isAuthenticated, fetchUser } = useAuthContext();
-    const [loading, setLoading] = React.useState(true);
+    const { user, isAuthenticated, fetchUser, loading } = useAuthContext();
+    const [checking, setChecking] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const checkAuth = async () => {
-            if (!isAuthenticated) {
-                setLoading(false);
-                navigate(fallbackPath, { replace: true });
-                return;
-            }
+        const verify = async () => {
+            if (loading) return;
 
-            if (!user) {
-                try {
+            try {
+                if (!user && isAuthenticated) {
                     await fetchUser();
-                } catch (err) {
+                }
+                if (!isAuthenticated || !user) {
                     navigate(fallbackPath, { replace: true });
                     return;
                 }
-            }
 
-            if (
-                !user?.roles ||
-                !user.roles.some((role) => allowedRoles.includes(role))
-            ) {
+                const hasAccess = user.roles?.some((role) =>
+                    allowedRoles.includes(role)
+                );
+
+                if (!hasAccess) {
+                    navigate(fallbackPath, { replace: true });
+                    return;
+                }
+            } catch {
                 navigate(fallbackPath, { replace: true });
+            } finally {
+                setChecking(false);
             }
-
-            setLoading(false);
         };
 
-        checkAuth();
+        verify();
     }, [
         user,
+        isAuthenticated,
+        fetchUser,
         allowedRoles,
         navigate,
         fallbackPath,
-        isAuthenticated,
-        fetchUser,
+        loading,
     ]);
 
-    if (loading)
+    if (loading || checking) {
         return (
-            <div
-                style={{
+            <Container
+                maxWidth={false}
+                sx={{
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
@@ -66,8 +69,9 @@ const RoleGuard: React.FC<RoleGuardProps> = ({
                 }}
             >
                 <CircularProgress />
-            </div>
+            </Container>
         );
+    }
 
     return <>{children}</>;
 };

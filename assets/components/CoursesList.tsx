@@ -8,6 +8,8 @@ import {
     CardActions,
     Button,
     CircularProgress,
+    Container,
+    Link,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useCourseData } from "@/hooks/use-course";
@@ -18,14 +20,40 @@ const CoursesList: React.FC = () => {
     const { courses, loading, error } = useCourseData();
     const navigate = useNavigate();
     const { user } = useAuthContext();
-    console.log(courses);
     const isNotStudent =
         user && user.roles && !user.roles.includes("ROLE_STUDENT");
 
-    if (loading) return <CircularProgress />;
-    if (error) return <Typography color="error">{error}</Typography>;
-    if (!courses || courses.length === 0)
-        return <Typography>No courses available.</Typography>;
+    if (loading)
+        return (
+            <Container
+                maxWidth="sm"
+                sx={{ display: "flex", justifyContent: "center", mt: 4 }}
+            >
+                <CircularProgress />
+            </Container>
+        );
+
+    if (!courses || courses.length === 0 || error)
+        return (
+            <Container maxWidth="lg">
+                <Typography variant="h4" align="center" sx={{ mt: 10 }}>
+                    No courses available for your Organization{" "}
+                    {user?.organization?.name}.
+                </Typography>
+                {isNotStudent && (
+                    <Box sx={{ textAlign: "center", mt: 5 }}>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            color="primary"
+                            onClick={() => navigate("/course/create")}
+                        >
+                            Start by creating your first course.
+                        </Button>
+                    </Box>
+                )}
+            </Container>
+        );
 
     return (
         <Box sx={{ width: "100%", mt: 4 }}>

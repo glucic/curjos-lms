@@ -47,7 +47,7 @@ const Home: React.FC = () => {
                         align="center"
                         paragraph
                     >
-                        A modern learning management system for students and
+                        A learning management system for students and
                         instructors
                     </Typography>
 
@@ -56,16 +56,9 @@ const Home: React.FC = () => {
                             <Button
                                 variant="contained"
                                 size="large"
-                                onClick={() => navigate("/register")}
-                            >
-                                Get Started
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                size="large"
                                 onClick={() => navigate("/login")}
                             >
-                                Login
+                                Login to Get Started
                             </Button>
                         </Box>
                     ) : null}

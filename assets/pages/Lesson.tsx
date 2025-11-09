@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
     Container,
     Typography,
@@ -16,21 +16,37 @@ const Lesson: React.FC = () => {
         lessonId: string;
     }>();
     const navigate = useNavigate();
-    const { lesson, fetchLesson, loading, error } = useCourseData();
 
-    useEffect(() => {
-        if (courseId && lessonId)
-            fetchLesson(parseInt(courseId), parseInt(lessonId));
-    }, [courseId, lessonId, fetchLesson]);
+    const { lesson, loading, error } = useCourseData(
+        Number(courseId),
+        Number(lessonId)
+    );
 
-    if (loading) return <CircularProgress />;
-    if (error)
+    if (loading) {
         return (
-            <Container>
-                <Typography color="error">{error}</Typography>
+            <Container
+                maxWidth="lg"
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "80vh",
+                }}
+            >
+                <CircularProgress />
             </Container>
         );
-    if (!lesson) return null;
+    }
+
+    if (error || !lesson) {
+        return (
+            <Container maxWidth="lg">
+                <Typography variant="h4" align="center" sx={{ mt: 10 }}>
+                    Lesson does not exist.
+                </Typography>
+            </Container>
+        );
+    }
 
     return (
         <Container maxWidth="md" sx={{ mt: 8 }}>
@@ -52,6 +68,7 @@ const Lesson: React.FC = () => {
                     {lesson.description}
                 </Typography>
             )}
+
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                 Type: {lesson.type}
             </Typography>
