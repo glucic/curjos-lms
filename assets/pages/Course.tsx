@@ -49,8 +49,8 @@ const Course: React.FC = () => {
                 }}
             >
                 <Typography variant="h4" gutterBottom>
-                    {course.title} by {course.instructor.firstName}{" "}
-                    {course.instructor.lastName}
+                    {course.title} by{" "}
+                    {course.instructorName || "Unknown Instructor"}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                     {course.description}
@@ -73,7 +73,7 @@ const Course: React.FC = () => {
                                     variant="body1"
                                     color="text.secondary"
                                 >
-                                    {lesson.content}
+                                    {lesson.description}
                                 </Typography>
                                 <Typography
                                     variant="body2"

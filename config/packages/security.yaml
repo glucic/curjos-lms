@@ -29,9 +29,6 @@ security:
     access_control:
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api/super, roles: ROLE_SUPER_ADMIN }
-        - { path: ^/api/admin, roles: ROLE_ADMIN }
-        - { path: ^/api/instructor, roles: ROLE_INSTRUCTOR }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
     role_hierarchy:

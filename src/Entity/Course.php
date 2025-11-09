@@ -3,46 +3,59 @@
 namespace App\Entity;
 
 use App\Repository\CourseRepository;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 #[ORM\Table(name: 'courses')]
+#[ORM\HasLifecycleCallbacks]
 class Course
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    #[Groups(['me:read'])]
+    #[ORM\Column(type: 'integer')]
+    #[Groups(['course:view'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['me:read'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 3, max: 50)]
+    #[Groups(['course:view', 'lesson:view'])]
     private ?string $title = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    #[Groups(['me:read'])]
+    #[Assert\Length(max: 2000)]
+    #[Groups(['course:view'])]
     private ?string $description = null;
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'courses')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['me:read'])]
+    #[Groups(['course:view'])]
     private ?Organization $organization = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['me:read'])]
     private ?User $instructor = null;
 
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Lesson::class, cascade: ['persist', 'remove'])]
-    #[Groups(['me:read'])]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Lesson::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['lesson:view'])]
     private Collection $lessons;
+
+    #[ORM\Column(type: 'datetime_immutable')]
+    #[Groups(['course:view'])]
+    private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Groups(['course:view'])]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     public function __construct()
     {
         $this->lessons = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -55,7 +68,7 @@ class Course
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(string $title): self
     {
         $this->title = $title;
         return $this;
@@ -66,18 +79,7 @@ class Course
         return $this->description;
     }
 
-    /**
-     * Get highest lesson difficulty
-     * @return int
-     */
-    #[Groups(['me:read'])]
-    public function getDifficulty(): int
-    {
-        $difficulties = $this->lessons->map(fn(Lesson $lesson) => $lesson->getDifficulty())->toArray();
-        return !empty($difficulties) ? max($difficulties) : 0;
-    }
-
-    public function setDescription(?string $description): static
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
         return $this;
@@ -88,21 +90,31 @@ class Course
         return $this->organization;
     }
 
-    public function setOrganization(?Organization $organization): static
+    public function setOrganization(?Organization $organization): self
     {
         $this->organization = $organization;
         return $this;
     }
 
-    public function getInstructor(): User
+    public function getInstructor(): ?User
     {
         return $this->instructor;
     }
 
-    public function setInstructor(?User $instructor): static
+    public function setInstructor(?User $instructor): self
     {
         $this->instructor = $instructor;
         return $this;
+    }
+
+    #[Groups(['course:view', 'lesson:view'])]
+    public function getInstructorName(): ?string
+    {
+        if ($this->instructor === null) {
+            return null;
+        }
+
+        return $this->instructor->getFullName();
     }
 
     /**
@@ -113,22 +125,51 @@ class Course
         return $this->lessons;
     }
 
-    public function addLesson(Lesson $lesson): static
+    public function addLesson(Lesson $lesson): self
     {
         if (!$this->lessons->contains($lesson)) {
             $this->lessons->add($lesson);
             $lesson->setCourse($this);
         }
+
         return $this;
     }
 
-    public function removeLesson(Lesson $lesson): static
+    public function removeLesson(Lesson $lesson): self
     {
         if ($this->lessons->removeElement($lesson)) {
             if ($lesson->getCourse() === $this) {
                 $lesson->setCourse(null);
             }
         }
+
         return $this;
+    }
+
+    #[Groups(['course:view'])]
+    public function getDifficulty(): int
+    {
+        $difficulties = array_map(
+            fn(Lesson $lesson) => $lesson->getDifficulty(),
+            $this->lessons->toArray()
+        );
+
+        return !empty($difficulties) ? max($difficulties) : 0;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    #[ORM\PreUpdate]
+    public function updateTimestamps(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
     }
 }

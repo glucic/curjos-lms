@@ -32,11 +32,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['me:read'])]
+    #[Groups(['me:read', 'course:view'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    #[Groups(['me:read'])]
+    #[Groups(['me:read', 'course:view'])]
     private ?string $lastName = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
@@ -48,6 +48,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Groups(['me:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'users')]
@@ -176,6 +177,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    #[Groups(['me:read'])]
     public function getFullName(): string
     {
         return $this->firstName . ' ' . $this->lastName;

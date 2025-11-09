@@ -3,43 +3,53 @@ namespace App\Entity;
 
 use App\Repository\LessonRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Serializer\Annotation\Groups;
+use function Symfony\Component\Clock\now;
 
 #[ORM\Entity(repositoryClass: LessonRepository::class)]
 #[ORM\Table(name: 'lessons')]
+#[ORM\HasLifecycleCallbacks]
 class Lesson
 {
-    #[Groups(['me:read'])]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['course:view','lesson:view'])]
     private ?int $id = null;
 
-    #[Groups(['me:read'])]
     #[ORM\Column(length: 255)]
+    #[Groups(['lesson:view'])]
     private ?string $title = null;
 
-    #[Groups(['me:read'])]
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['lesson:view'])]
     private ?string $description = null;
 
     #[ORM\Column(type: 'integer', nullable: false)]
     #[Assert\Range(min: 0, max: 5, notInRangeMessage: 'Difficulty must be between {{ min }} and {{ max }}.')]
-    #[Groups(['me:read'])]
-    private int $difficulty = 0; // Difficulty level from 0 (easy) to 5 (hard)
+    #[Groups(['course:view','lesson:view'])]
+    private int $difficulty = 0;
 
-    #[Groups(['me:read'])]
     #[ORM\Column(length: 50)]
+    #[Groups(['lesson:view'])]
     private ?string $type = null;
 
-    #[Groups(['me:read'])]
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['lesson:view'])]
     private ?string $resourceUrl = null;
 
     #[ORM\ManyToOne(targetEntity: Course::class, inversedBy: 'lessons')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Course $course = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Groups(['lesson:view'])]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Groups(['lesson:view'])]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     public function getId(): ?int
     {

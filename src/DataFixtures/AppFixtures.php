@@ -2,275 +2,136 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Organization;
-use App\Entity\Permission;
-use App\Entity\Role;
-use App\Entity\User;
+use App\Entity\{Organization, Permission, Role, User, Course, Lesson};
+use App\Enum\{Roles, Permissions};
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
-    private UserPasswordHasherInterface $passwordHasher;
-
-    public function __construct(UserPasswordHasherInterface $passwordHasher)
-    {
-        $this->passwordHasher = $passwordHasher;
-    }
+    public function __construct(
+        private UserPasswordHasherInterface $passwordHasher
+    ) {}
 
     public function load(ObjectManager $manager): void
     {
         $permissions = $this->createPermissions($manager);
         
-        $systemOrg = $this->createSystemOrganization($manager);
-        $superAdminRole = $this->createSuperAdminRole($manager, $systemOrg, $permissions);
-        $this->createSuperAdminUser($manager, $systemOrg, $superAdminRole);
-        
-        $demoOrg = $this->createDemoOrganization($manager);
-        $demoRoles = $this->createStandardRoles($manager, $demoOrg, $permissions);
+        $systemOrg = $this->createOrganization($manager, 'System', 'system', true);
+        $superAdminRole = $this->createRole($manager, Roles::SUPER_ADMIN, $systemOrg, $permissions);
+        $this->createUser($manager, 'super@system.local', 'Super', 'Admin', 'SuperSecret123!', $systemOrg, [$superAdminRole]);
+
+        $demoOrg = $this->createOrganization($manager, 'Demo University', 'demo-university');
+        $demoRoles = $this->createRolesForOrganization($manager, $demoOrg, $permissions);
         $this->createDemoUsers($manager, $demoOrg, $demoRoles);
-                
+
         $manager->flush();
     }
 
     private function createPermissions(ObjectManager $manager): array
     {
-        $permissionData = [
-            ['name' => 'organization:view', 'resource' => 'organization', 'action' => 'view', 'description' => 'View organizations'],
-            ['name' => 'organization:create', 'resource' => 'organization', 'action' => 'create', 'description' => 'Create organizations'],
-            ['name' => 'organization:edit', 'resource' => 'organization', 'action' => 'edit', 'description' => 'Edit organizations'],
-            ['name' => 'organization:delete', 'resource' => 'organization', 'action' => 'delete', 'description' => 'Delete organizations'],
-            
-            ['name' => 'course:view', 'resource' => 'course', 'action' => 'view', 'description' => 'View courses'],
-            ['name' => 'course:create', 'resource' => 'course', 'action' => 'create', 'description' => 'Create courses'],
-            ['name' => 'course:edit', 'resource' => 'course', 'action' => 'edit', 'description' => 'Edit courses'],
-            ['name' => 'course:delete', 'resource' => 'course', 'action' => 'delete', 'description' => 'Delete courses'],
-            ['name' => 'course:publish', 'resource' => 'course', 'action' => 'publish', 'description' => 'Publish courses'],
-
-            ['name' => 'lesson:view', 'resource' => 'lesson', 'action' => 'view', 'description' => 'View lessons'],
-            ['name' => 'lesson:create', 'resource' => 'lesson', 'action' => 'create', 'description' => 'Create lessons'],
-            ['name' => 'lesson:edit', 'resource' => 'lesson', 'action' => 'edit', 'description' => 'Edit lessons'],
-            ['name' => 'lesson:delete', 'resource' => 'lesson', 'action' => 'delete', 'description' => 'Delete lessons'],
-            
-            ['name' => 'enrollment:view', 'resource' => 'enrollment', 'action' => 'view', 'description' => 'View enrollments'],
-            ['name' => 'enrollment:create', 'resource' => 'enrollment', 'action' => 'create', 'description' => 'Enroll in courses'],
-            ['name' => 'enrollment:manage', 'resource' => 'enrollment', 'action' => 'manage', 'description' => 'Manage enrollments'],
-            
-            ['name' => 'user:view', 'resource' => 'user', 'action' => 'view', 'description' => 'View users'],
-            ['name' => 'user:create', 'resource' => 'user', 'action' => 'create', 'description' => 'Create users'],
-            ['name' => 'user:edit', 'resource' => 'user', 'action' => 'edit', 'description' => 'Edit users'],
-            ['name' => 'user:delete', 'resource' => 'user', 'action' => 'delete', 'description' => 'Delete users'],
-            
-            ['name' => 'role:view', 'resource' => 'role', 'action' => 'view', 'description' => 'View roles'],
-            ['name' => 'role:manage', 'resource' => 'role', 'action' => 'manage', 'description' => 'Manage roles'],
-        ];
-
         $permissions = [];
-        foreach ($permissionData as $data) {
+        foreach (Permissions::cases() as $permEnum) {
             $permission = new Permission();
-            $permission->setName($data['name']);
-            $permission->setDescription($data['description']);
-            
+            $permission
+                ->setName($permEnum->value)
+                ->setDescription($permEnum->description());
             $manager->persist($permission);
-            $permissions[$data['name']] = $permission;
+            $permissions[$permEnum->value] = $permission;
         }
-
         return $permissions;
     }
 
-    private function createSystemOrganization(ObjectManager $manager): Organization
+    private function createOrganization(ObjectManager $manager, string $name, string $slug, bool $isSystem = false): Organization
     {
-        $systemOrg = new Organization();
-        $systemOrg->setName('System');
-        $systemOrg->setSlug('system');
-        $systemOrg->setIsActive(true);
-        $systemOrg->setIsSystemOrganization(true);
-        
-        $manager->persist($systemOrg);
-
-        return $systemOrg;
+        $org = new Organization();
+        $org->setName($name);
+        $org->setSlug($slug);
+        $org->setIsActive(true);
+        $org->setIsSystemOrganization($isSystem);
+        $manager->persist($org);
+        return $org;
     }
 
-    private function createSuperAdminRole(ObjectManager $manager, Organization $systemOrg, array $permissions): Role
+    private function createRole(ObjectManager $manager, Roles $roleEnum, Organization $organization, array $permissions): Role
     {
-        $superAdminRole = new Role();
-        $superAdminRole->setName('ROLE_SUPER_ADMIN');
-        $superAdminRole->setDescription('System Super Administrator - Full system access');
-        $superAdminRole->setOrganization($systemOrg);
-        $superAdminRole->setIsSystemRole(true);
-        
-        foreach ($permissions as $permission) {
-            $superAdminRole->addPermission($permission);
+        $role = new Role();
+        $role->setName($roleEnum->value);
+        $role->setDescription($roleEnum->description());
+        $role->setOrganization($organization);
+        $role->setIsSystemRole($organization->isSystemOrganization());
+
+        foreach ($roleEnum->defaultPermissions() as $permName) {
+            if (isset($permissions[$permName])) {
+                $role->addPermission($permissions[$permName]);
+            }
         }
-        
-        $manager->persist($superAdminRole);
 
-        return $superAdminRole;
+        $manager->persist($role);
+        return $role;
     }
 
-    private function createSuperAdminUser(ObjectManager $manager, Organization $systemOrg, Role $superAdminRole): void
-    {
-        $superAdmin = new User();
-        $superAdmin->setEmail('super@system.local');
-        $superAdmin->setFirstName('Super');
-        $superAdmin->setLastName('Admin');
-        $superAdmin->setOrganization($systemOrg);
-        $superAdmin->setIsActive(true);
-        $superAdmin->setPassword($this->passwordHasher->hashPassword($superAdmin, 'SuperSecret123!'));
-        $superAdmin->addRole($superAdminRole);
-        
-        $manager->persist($superAdmin);
-    }
-
-    private function createDemoOrganization(ObjectManager $manager): Organization
-    {
-        $demoOrg = new Organization();
-        $demoOrg->setName('Demo University');
-        $demoOrg->setSlug('demo-university');
-        $demoOrg->setIsActive(true);
-        
-        $manager->persist($demoOrg);
-
-        return $demoOrg;
-    }
-
-    private function createStandardRoles(ObjectManager $manager, Organization $organization, array $permissions): array
+    private function createRolesForOrganization(ObjectManager $manager, Organization $org, array $permissions): array
     {
         $roles = [];
-
-        $adminRole = new Role();
-        $adminRole->setName('ROLE_ADMIN');
-        $adminRole->setDescription('Organization Administrator - Full org access');
-        $adminRole->setOrganization($organization);
-        
-        foreach ($permissions as $name => $permission) {
-            if (!str_starts_with($name, 'organization:')) {
-                $adminRole->addPermission($permission);
-            }
+        foreach ([Roles::ADMIN, Roles::INSTRUCTOR, Roles::STUDENT] as $roleEnum) {
+            $roles[$roleEnum->name] = $this->createRole($manager, $roleEnum, $org, $permissions);
         }
-        
-        $manager->persist($adminRole);
-        $roles['admin'] = $adminRole;
-
-        $instructorRole = new Role();
-        $instructorRole->setName('ROLE_INSTRUCTOR');
-        $instructorRole->setDescription('Course Instructor');
-        $instructorRole->setOrganization($organization);
-        
-        $instructorPermissions = [
-            'course:view', 'course:create', 'course:edit', 'course:publish',
-            'lesson:view', 'lesson:create', 'lesson:edit', 'lesson:delete',
-            'enrollment:view',
-            'user:view',
-        ];
-        
-        foreach ($instructorPermissions as $permName) {
-            if (isset($permissions[$permName])) {
-                $instructorRole->addPermission($permissions[$permName]);
-            }
-        }
-        
-        $manager->persist($instructorRole);
-        $roles['instructor'] = $instructorRole;
-
-        $studentRole = new Role();
-        $studentRole->setName('ROLE_STUDENT');
-        $studentRole->setDescription('Student User');
-        $studentRole->setOrganization($organization);
-        
-        $studentPermissions = [
-            'course:view',
-            'lesson:view',
-            'enrollment:view', 
-            'enrollment:create',
-        ];
-        
-        foreach ($studentPermissions as $permName) {
-            if (isset($permissions[$permName])) {
-                $studentRole->addPermission($permissions[$permName]);
-            }
-        }
-        
-        $manager->persist($studentRole);
-        $roles['student'] = $studentRole;
-
         return $roles;
     }
 
-    private function createDemoUsers(ObjectManager $manager, Organization $organization, array $roles): void
+    private function createUser(ObjectManager $manager, string $email, string $first, string $last, string $password, Organization $org, array $roles): User
     {
-        $admin = new User();
-        $admin->setEmail('admin@demo.com');
-        $admin->setFirstName('John');
-        $admin->setLastName('Admin');
-        $admin->setOrganization($organization);
-        $admin->setIsActive(true);
-        $admin->setPassword($this->passwordHasher->hashPassword($admin, 'admin123'));
-        $admin->addRole($roles['admin']);
-        $manager->persist($admin);
+        $user = new User();
+        $user->setEmail($email);
+        $user->setFirstName($first);
+        $user->setLastName($last);
+        $user->setOrganization($org);
+        $user->setIsActive(true);
+        $user->setPassword($this->passwordHasher->hashPassword($user, $password));
 
-        $instructor = new User();
-        $instructor->setEmail('instructor@demo.com');
-        $instructor->setFirstName('Jane');
-        $instructor->setLastName('Instructor');
-        $instructor->setOrganization($organization);
-        $instructor->setIsActive(true);
-        $instructor->setPassword($this->passwordHasher->hashPassword($instructor, 'instructor123'));
-        $instructor->addRole($roles['instructor']);
-        $manager->persist($instructor);
+        foreach ($roles as $role) {
+            $user->addRole($role);
+        }
 
-        $this->createDemoCourses($manager, $organization, $instructor);
-
-        $student = new User();
-        $student->setEmail('student@demo.com');
-        $student->setFirstName('Bob');
-        $student->setLastName('Student');
-        $student->setOrganization($organization);
-        $student->setIsActive(true);
-        $student->setPassword($this->passwordHasher->hashPassword($student, 'student123'));
-        $student->addRole($roles['student']);
-        $manager->persist($student);
+        $manager->persist($user);
+        return $user;
     }
 
-    private function createDemoCourses(ObjectManager $manager, Organization $organization, User $instructor): void
+    private function createDemoUsers(ObjectManager $manager, Organization $org, array $roles): void
     {
-        $course = new \App\Entity\Course();
+        $admin = $this->createUser($manager, 'admin@demo.com', 'John', 'Admin', 'admin123', $org, [$roles['ADMIN']]);
+        $instructor = $this->createUser($manager, 'instructor@demo.com', 'Jane', 'Instructor', 'instructor123', $org, [$roles['INSTRUCTOR']]);
+        $student = $this->createUser($manager, 'student@demo.com', 'Bob', 'Student', 'student123', $org, [$roles['STUDENT']]);
+        $this->createDemoCourses($manager, $org, $instructor);
+    }
+
+    private function createDemoCourses(ObjectManager $manager, Organization $org, User $instructor): void
+    {
+        $course = new Course();
         $course->setTitle('Introduction to Leadership');
-        $course->setDescription('A beginner course on leadership principles.');
-        $course->setOrganization($organization);
+        $course->setDescription('Learn essential leadership principles.');
+        $course->setOrganization($org);
         $course->setInstructor($instructor);
         $manager->persist($course);
 
-        $lesson1 = new \App\Entity\Lesson();
-        $lesson1->setTitle('Welcome Video');
-        $lesson1->setType('video');
-        $lesson1->setDescription('Introduction to the course.');
-        $lesson1->setResourceUrl('https://example.com/welcome.mp4');
-        $lesson1->setCourse($course);
-        $lesson1->setDifficulty(difficulty: 0);
-        $manager->persist($lesson1);
+        $lessons = [
+            ['Welcome Video', 'video', 'Course overview and introduction.', 'https://example.com/welcome.mp4', 0],
+            ['Leadership Fundamentals', 'pdf', 'Understanding leadership basics.', 'https://example.com/leadership.pdf', 1],
+            ['Interactive Exercise', 'exercise', 'Apply your leadership skills.', null, 2],
+        ];
 
-        $lesson2 = new \App\Entity\Lesson();
-        $lesson2->setTitle('Leadership PDF');
-        $lesson2->setType('pdf');
-        $lesson2->setDescription('Downloadable leadership guide.');
-        $lesson2->setResourceUrl('https://example.com/leadership.pdf');
-        $lesson2->setCourse($course);
-        $lesson2->setDifficulty(difficulty: 1);
-        $manager->persist($lesson2);
-
-        $lesson3 = new \App\Entity\Lesson();
-        $lesson3->setTitle('Self-Assessment Exercise');
-        $lesson3->setType('exercise');
-        $lesson3->setDescription('Complete the self-assessment.');
-        $lesson3->setResourceUrl(null);
-        $lesson3->setCourse($course);
-        $lesson3->setDifficulty(difficulty: 2);
-        $manager->persist($lesson3);
-
-        $course->addLesson($lesson1);
-        $course->addLesson($lesson2);   
-        $course->addLesson($lesson3);
+        foreach ($lessons as [$title, $type, $desc, $url, $difficulty]) {
+            $lesson = new Lesson();
+            $lesson->setTitle($title)
+                   ->setType($type)
+                   ->setDescription($desc)
+                   ->setResourceUrl($url)
+                   ->setDifficulty($difficulty)
+                   ->setCourse($course);
+            $manager->persist($lesson);
+            $course->addLesson($lesson);
+        }
     }
 }

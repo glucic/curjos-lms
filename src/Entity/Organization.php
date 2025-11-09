@@ -19,11 +19,11 @@ class Organization
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['me:read'])]
+    #[Groups(['me:read', 'course:view'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['me:read'])]
+    #[Groups(['me:read', 'course:view'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, unique: true)]
@@ -31,6 +31,7 @@ class Organization
     private ?string $slug = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    #[Groups(['me:read'])]
     private bool $isActive = true;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]

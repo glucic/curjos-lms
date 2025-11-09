@@ -41,7 +41,9 @@ const CoursesList: React.FC = () => {
                         <Card sx={{ mb: 2 }}>
                             <CardContent>
                                 <Typography variant="h6" component="div">
-                                    {course.title}
+                                    {course.title} by{" "}
+                                    {course.instructorName ||
+                                        "Unknown Instructor"}
                                 </Typography>
                                 <Typography
                                     variant="body2"

@@ -24,6 +24,7 @@ export interface User {
     email: string;
     firstName: string;
     lastName: string;
+    fullName?: string;
     isActive: boolean;
     createdAt: string;
     organization: Organization;
