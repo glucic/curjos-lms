@@ -83,4 +83,58 @@ class CourseController extends AbstractController
         );
     }
 
+    #[Route('/{id}', name: 'api_courses_update', methods: ['PUT', 'PATCH'])]
+    #[IsGranted(Roles::INSTRUCTOR->value)]
+    public function update(int $id, CourseRequest $request): JsonResponse
+    {
+        $user = $this->getUser();
+        $organization = method_exists($user, 'getOrganization') ? $user->getOrganization() : null;
+
+        if (!$organization) {
+            return $this->error('Organization not found', 'not_found', 404);
+        }
+
+        $course = $this->entityManager->getRepository(Course::class)
+            ->findOneByIdAndOrganization($id, $organization);
+
+        if (!$course) {
+            return $this->error('Course not found', 'not_found', 404);
+        }
+
+        $course->setTitle($request->title ?? $course->getTitle());
+        $course->setDescription($request->description ?? $course->getDescription());
+
+        $this->entityManager->flush();
+
+        return $this->success(
+            data: $course,
+            status: 200,
+            context: ['groups' => [Permissions::COURSE_EDIT->value]]
+        );
+    }
+
+    #[Route('/{id}', name: 'api_courses_delete', methods: ['DELETE'])]
+    #[IsGranted(Roles::INSTRUCTOR->value)]
+    public function delete(int $id): JsonResponse
+    {
+        $user = $this->getUser();
+        $organization = method_exists($user, 'getOrganization') ? $user->getOrganization() : null;
+
+        if (!$organization) {
+            return $this->error('Organization not found', 'not_found', 404);
+        }
+
+        $course = $this->entityManager->getRepository(Course::class)
+            ->findOneByIdAndOrganization($id, $organization);
+
+        if (!$course) {
+            return $this->error('Course not found', 'not_found', 404);
+        }
+
+        $this->entityManager->remove($course);
+        $this->entityManager->flush();
+
+        return $this->success('Course deleted successfully', status: 204);
+    }
+
 }

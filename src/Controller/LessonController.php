@@ -85,4 +85,61 @@ class LessonController extends AbstractController
             context: ['groups' => [Permissions::LESSON_CREATE->value]]
         );
     }
+
+    #[Route('/{lessonId}', name: 'api_lessons_update', methods: ['PUT'])]
+    #[IsGranted(Roles::INSTRUCTOR->value)]
+    public function update(int $courseId, int $lessonId, LessonRequest $request): JsonResponse
+    {
+        $course = $this->entityManager->getRepository(Course::class)->find($courseId);
+        if (!$course) {
+            return $this->error('Course not found', 'not_found', 404);
+        }
+
+        $lesson = $this->entityManager->getRepository(Lesson::class)
+            ->findOneBy(['id' => $lessonId, 'course' => $course]);
+
+        if (!$lesson) {
+            return $this->error('Lesson not found', 'not_found', 404);
+        }
+
+        $lesson->setTitle($request->title ?? $lesson->getTitle());
+        $lesson->setDescription($request->description ?? $lesson->getDescription());
+        $lesson->setDifficulty($request->difficulty ?? $lesson->getDifficulty());
+        $lesson->setType($request->type ?? $lesson->getType());
+        $lesson->setResourceUrl($request->resourceUrl ?? $lesson->getResourceUrl());
+
+        $this->entityManager->flush();
+
+        return $this->success(
+            data: $lesson,
+            status: 200,
+            context: ['groups' => [Permissions::LESSON_EDIT->value]]
+        );
+    }
+
+    #[Route('/{lessonId}', name: 'api_lessons_delete', methods: ['DELETE'])]
+    #[IsGranted(Roles::INSTRUCTOR->value)]
+    public function delete(int $courseId, int $lessonId): JsonResponse
+    {
+        $course = $this->entityManager->getRepository(Course::class)->find($courseId);
+        if (!$course) {
+            return $this->error('Course not found', 'not_found', 404);
+        }
+
+        $lesson = $this->entityManager->getRepository(Lesson::class)
+            ->findOneBy(['id' => $lessonId, 'course' => $course]);
+
+        if (!$lesson) {
+            return $this->error('Lesson not found', 'not_found', 404);
+        }
+
+        $this->entityManager->remove($lesson);
+        $this->entityManager->flush();
+
+        return $this->success(
+            data: null,
+            status: 204
+        );
+    }
+
 }

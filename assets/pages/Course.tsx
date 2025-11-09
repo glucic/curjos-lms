@@ -15,16 +15,33 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/context/AuthContext";
 import { useCourseData } from "@/hooks/use-course";
 import { Lesson } from "@/types/course";
+import {
+    ArrowBack as ArrowBackIcon,
+    Add as AddIcon,
+    Edit as EditIcon,
+    Delete as DeleteIcon,
+} from "@mui/icons-material";
 
 const Course: React.FC = () => {
     const { courseId } = useParams<{ courseId: string }>();
     const navigate = useNavigate();
     const { user } = useAuthContext();
+
     const isNotStudent = user && !user.roles.includes("ROLE_STUDENT");
 
-    const { course, loading, error } = useCourseData(
+    const { course, loading, error, deleteCourse } = useCourseData(
         courseId ? parseInt(courseId) : undefined
     );
+
+    const handleDelete = async () => {
+        if (!courseId) return;
+        try {
+            await deleteCourse(parseInt(courseId));
+            navigate("/"); // redirect after deletion
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
     if (loading) {
         return (
@@ -62,24 +79,82 @@ const Course: React.FC = () => {
                 {course.description}
             </Typography>
 
-            <Box sx={{ display: "flex", gap: 2 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    justifyContent: "space-between",
+                    alignItems: { xs: "stretch", sm: "center" },
+                    gap: 2,
+                    mb: 3,
+                }}
+            >
                 <Button
                     variant="outlined"
-                    sx={{ mb: 3 }}
-                    onClick={() => navigate(-1)}
+                    color="primary"
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate("/")}
+                    sx={{
+                        px: 3,
+                        fontWeight: 500,
+                        textTransform: "none",
+                    }}
                 >
                     Back to Homepage
                 </Button>
+
                 {isNotStudent && (
-                    <Button
-                        variant="contained"
-                        sx={{ mb: 3 }}
-                        onClick={() =>
-                            navigate(`/course/${course.id}/lesson/create`)
-                        }
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 1.5,
+                        }}
                     >
-                        + New Lesson
-                    </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<AddIcon />}
+                            onClick={() =>
+                                navigate(`/course/${courseId}/lesson/create`)
+                            }
+                            sx={{
+                                px: 3,
+                                fontWeight: 600,
+                                textTransform: "none",
+                            }}
+                        >
+                            New Lesson
+                        </Button>
+
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            startIcon={<EditIcon />}
+                            onClick={() => navigate(`/course/${courseId}/edit`)}
+                            sx={{
+                                px: 3,
+                                fontWeight: 500,
+                                textTransform: "none",
+                            }}
+                        >
+                            Edit Course
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={handleDelete}
+                            sx={{
+                                px: 3,
+                                fontWeight: 600,
+                                textTransform: "none",
+                            }}
+                        >
+                            Delete Course
+                        </Button>
+                    </Box>
                 )}
             </Box>
 

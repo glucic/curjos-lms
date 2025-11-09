@@ -6,6 +6,7 @@ import {
     Button,
     CircularProgress,
 } from "@mui/material";
+import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useCourseData } from "@/hooks/use-course";
 
@@ -36,10 +37,17 @@ const CreateCourse: React.FC = () => {
             </Typography>
             <Button
                 variant="outlined"
-                sx={{ mb: 2 }}
-                onClick={() => navigate(-1)}
+                color="primary"
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate("/")}
+                sx={{
+                    px: 3,
+                    fontWeight: 500,
+                    textTransform: "none",
+                    mb: 2,
+                }}
             >
-                Back to Course
+                Back to Homepage
             </Button>
             <form onSubmit={handleSubmit}>
                 <TextField

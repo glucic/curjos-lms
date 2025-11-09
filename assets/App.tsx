@@ -9,6 +9,9 @@ import CreateCourse from "@/pages/CreateCourse";
 import CreateLesson from "@/pages/CreateLesson";
 import Lesson from "@/pages/Lesson";
 import RoleGuard from "@/RoleGuard";
+import { Edit } from "@mui/icons-material";
+import EditCourse from "./pages/EditCourse";
+import EditLesson from "./pages/EditLesson";
 
 const App: React.FC = () => {
     return (
@@ -47,6 +50,20 @@ const App: React.FC = () => {
                     }
                 />
                 <Route
+                    path="/course/:courseId/edit"
+                    element={
+                        <RoleGuard
+                            allowedRoles={[
+                                "ROLE_INSTRUCTOR",
+                                "ROLE_ADMIN",
+                                "ROLE_SUPER_ADMIN",
+                            ]}
+                        >
+                            <EditCourse />
+                        </RoleGuard>
+                    }
+                />
+                <Route
                     path="/course/:courseId/lesson/:lessonId"
                     element={
                         <RoleGuard
@@ -72,6 +89,20 @@ const App: React.FC = () => {
                             ]}
                         >
                             <CreateLesson />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="/course/:courseId/lesson/:lessonId/edit"
+                    element={
+                        <RoleGuard
+                            allowedRoles={[
+                                "ROLE_INSTRUCTOR",
+                                "ROLE_ADMIN",
+                                "ROLE_SUPER_ADMIN",
+                            ]}
+                        >
+                            <EditLesson />
                         </RoleGuard>
                     }
                 />
