@@ -9,8 +9,8 @@ class CourseRequest extends BaseRequest
 {
     #[Assert\NotBlank]
     #[Assert\Length(min: 3, max: 50)]
-    private string $title;
+    public string $title;
 
     #[Assert\Length(max: 2000)]
-    private ?string $description = null;
+    public ?string $description = null;
 }

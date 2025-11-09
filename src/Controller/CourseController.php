@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Course;
 use App\Enum\Roles;
+use App\Enum\Permissions;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -59,6 +60,27 @@ class CourseController extends AbstractController
     #[IsGranted(Roles::INSTRUCTOR->value)]
     public function create(CourseRequest $request): JsonResponse
     {
-        
+        $user = $this->getUser();
+        $organization = method_exists($user, 'getOrganization') ? $user->getOrganization() : null;
+
+        if (!$organization) {
+            return $this->error('Organization not found', 'not_found', 404);
+        }
+
+        $course = new Course();
+        $course->setTitle($request->title);
+        $course->setDescription($request->description);
+        $course->setOrganization($organization);
+        $course->setInstructor($user);
+
+        $this->entityManager->persist($course);
+        $this->entityManager->flush();
+
+        return $this->success(
+            data: $course,
+            status: 201,
+            context: ['groups' => [Permissions::COURSE_CREATE->value]]
+        );
     }
+
 }

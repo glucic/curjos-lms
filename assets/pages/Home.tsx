@@ -6,6 +6,7 @@ import {
     Button,
     Paper,
     Divider,
+    CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import SchoolIcon from "@mui/icons-material/School";
@@ -14,10 +15,10 @@ import CoursesList from "@/components/CoursesList";
 
 const Home: React.FC = () => {
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuthContext();
+    const { isAuthenticated, loading } = useAuthContext();
 
     return (
-        <Container>
+        <Container maxWidth={false}>
             <Container>
                 <Box
                     sx={{
@@ -71,10 +72,10 @@ const Home: React.FC = () => {
                 </Box>
             </Container>
             {isAuthenticated ? (
-                <Container sx={{ height: "100%", mt: 5}}>
+                <>
                     <Divider sx={{ my: 1 }} />
                     <CoursesList />
-                </Container>
+                </>
             ) : null}
         </Container>
     );

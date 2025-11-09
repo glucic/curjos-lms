@@ -44,6 +44,22 @@ export const authApi = {
 export const courseApi = {
     getCourses: () => apiClient.get("/courses"),
     getCourse: (courseId: number) => apiClient.get(`/courses/${courseId}`),
+    createCourse: (data: { title: string; description: string }) =>
+        apiClient.post("/courses", data),
+    createLesson: (
+        courseId: number,
+        data: {
+            title: string;
+            description?: string;
+            difficulty?: number;
+            type: string;
+            resourceUrl?: string;
+        }
+    ) => apiClient.post(`/courses/${courseId}/lessons`, data),
+    getLessons: (courseId: number) =>
+        apiClient.get(`/courses/${courseId}/lessons`),
+    getLesson: (courseId: number, lessonId: number) =>
+        apiClient.get(`/courses/${courseId}/lessons/${lessonId}`),
 };
 
 export interface ApiError {

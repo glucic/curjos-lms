@@ -1,12 +1,17 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import SchoolIcon from "@mui/icons-material/School";
-import { Link } from "react-router-dom";
 import { useAuthContext } from "@/context/AuthContext";
 
 const Navbar: React.FC = () => {
     const { user, isAuthenticated, logout } = useAuthContext();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
 
     return (
         <AppBar position="sticky">
@@ -27,7 +32,7 @@ const Navbar: React.FC = () => {
                             >
                                 {user.firstName} {user.lastName}
                             </Button>
-                            <Button color="inherit" onClick={logout}>
+                            <Button color="inherit" onClick={handleLogout}>
                                 Logout
                             </Button>
                         </>

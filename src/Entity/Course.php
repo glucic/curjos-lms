@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Enum\Permissions;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 #[ORM\Table(name: 'courses')]
@@ -17,39 +18,40 @@ class Course
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(['course:view'])]
+    #[Groups([Permissions::COURSE_CREATE->value, Permissions::COURSE_VIEW->value])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 3, max: 50)]
-    #[Groups(['course:view', 'lesson:view'])]
+    #[Groups([Permissions::COURSE_CREATE->value, Permissions::COURSE_VIEW->value])]
     private ?string $title = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\Length(max: 2000)]
-    #[Groups(['course:view'])]
+    #[Groups([Permissions::COURSE_CREATE->value, Permissions::COURSE_VIEW->value])]
     private ?string $description = null;
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'courses')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['course:view'])]
+    #[Groups([Permissions::COURSE_CREATE->value, Permissions::COURSE_VIEW->value])]
     private ?Organization $organization = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups([Permissions::COURSE_CREATE->value])]
     private ?User $instructor = null;
 
     #[ORM\OneToMany(mappedBy: 'course', targetEntity: Lesson::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[Groups(['lesson:view'])]
+    #[Groups([Permissions::LESSON_VIEW->value])]
     private Collection $lessons;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    #[Groups(['course:view'])]
+    #[Groups([Permissions::COURSE_VIEW->value])]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    #[Groups(['course:view'])]
+    #[Groups([Permissions::COURSE_VIEW->value])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     public function __construct()
@@ -68,6 +70,7 @@ class Course
         return $this->title;
     }
 
+    #[Groups([Permissions::COURSE_CREATE->value])]
     public function setTitle(string $title): self
     {
         $this->title = $title;
@@ -79,6 +82,7 @@ class Course
         return $this->description;
     }
 
+    #[Groups([Permissions::COURSE_CREATE->value])]
     public function setDescription(?string $description): self
     {
         $this->description = $description;
@@ -123,6 +127,12 @@ class Course
     public function getLessons(): Collection
     {
         return $this->lessons;
+    }
+
+    #[Groups(['course:view', 'lesson:view'])]
+    public function getLessonsCount(): int
+    {
+        return $this->lessons->count() ?? 0;
     }
 
     public function addLesson(Lesson $lesson): self

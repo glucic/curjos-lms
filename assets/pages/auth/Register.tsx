@@ -18,12 +18,6 @@ import { useAuthContext } from "@/context/AuthContext";
 const Register: React.FC = () => {
     const navigate = useNavigate();
     const { loading, error, validationErrors, handleRegister } = useAuth();
-    const { isAuthenticated } = useAuthContext();
-    React.useEffect(() => {
-        if (isAuthenticated) {
-            navigate("/");
-        }
-    }, [isAuthenticated, navigate]);
     const [formData, setFormData] = useState<RegisterFormData>({
         firstName: "",
         lastName: "",

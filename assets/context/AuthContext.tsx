@@ -15,6 +15,7 @@ interface AuthContextType {
     logout: () => void;
     isAuthenticated: boolean;
     fetchUser: () => Promise<void>;
+    loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<AuthResult["user"] | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const storedToken = localStorage.getItem("jwt_token");
@@ -35,12 +37,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, [token]);
 
     const fetchUser = async () => {
-        if (!token) return;
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
         try {
             const response = await authApi.me();
             setUser(response.data);
         } catch (err) {
             setUser(null);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -64,6 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 logout,
                 isAuthenticated: !!token,
                 fetchUser,
+                loading,
             }}
         >
             {children}

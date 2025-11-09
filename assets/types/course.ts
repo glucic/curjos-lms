@@ -4,7 +4,8 @@ export interface Course {
     description: string;
     lessons?: Lesson[];
     instructorName?: string;
-    difficulty?: number;
+    difficulty: number;
+    lessonsCount: number;
 }
 
 export interface Lesson {
@@ -12,4 +13,6 @@ export interface Lesson {
     title: string;
     description: string;
     difficulty: number;
+    resourceUrl?: string;
+    type: string;
 }

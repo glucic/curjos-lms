@@ -18,12 +18,6 @@ import { useAuthContext } from "@/context/AuthContext";
 const Login: React.FC = () => {
     const navigate = useNavigate();
     const { loading, error, validationErrors, handleLogin } = useAuth();
-    const { isAuthenticated } = useAuthContext();
-    React.useEffect(() => {
-        if (isAuthenticated) {
-            navigate("/");
-        }
-    }, [isAuthenticated, navigate]);
     const [formData, setFormData] = useState<LoginFormData>({
         email: "",
         password: "",
