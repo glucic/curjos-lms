@@ -3,7 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\{Organization, Permission, Role, User, Course, Lesson};
-use App\Enum\{Roles, Permissions};
+use App\Data\Enums\{Roles, Permissions};
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;

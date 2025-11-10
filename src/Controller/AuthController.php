@@ -19,7 +19,7 @@ final class AuthController extends AbstractController
     public function __construct(
         private EntityManagerInterface $entityManager,
         private UserPasswordHasherInterface $passwordHasher,
-        private ValidatorInterface $validator
+        private ValidatorInterface $validator,
     ) {}
 
     #[Route('/login', name: 'api_auth_login', methods: ['POST'])]
@@ -36,7 +36,7 @@ final class AuthController extends AbstractController
         if (!$user) {
             return $this->error('User not authenticated', 'not_authenticated', Response::HTTP_UNAUTHORIZED);
         }
-        
-        return $this->json($user, Response::HTTP_OK, [], ['groups' => ['me:read']]);
+
+        return $this->json(data: $user, status: Response::HTTP_OK, context: ['groups' => ['me:read']]);
     }
 }

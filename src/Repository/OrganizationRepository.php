@@ -15,4 +15,12 @@ class OrganizationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Organization::class);
     }
+
+    public function findNonSystemOrganizations(): array
+    {
+        return $this->createQueryBuilder('o')
+            ->where('o.isSystemOrganization = false')
+            ->getQuery()
+            ->getResult();
+    }
 }

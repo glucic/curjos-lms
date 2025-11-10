@@ -42,6 +42,7 @@ const CreateUser: React.FC = () => {
                 email,
                 role,
                 ...(password ? { password } : {}),
+                organizationId: orgId,
             });
             navigate(`/organization/${orgId}`);
         } catch (err) {

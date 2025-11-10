@@ -18,10 +18,11 @@ class Role
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:view', 'user:create', 'user:edit'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['me:read', 'user:create'])]
+    #[Groups(['me:read', 'user:view', 'user:create', 'user:edit'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -61,11 +62,13 @@ class Role
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    #[Groups(['user:view', 'user:edit', 'user:create'])]
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    #[Groups(['user:view', 'user:edit', 'user:create'])]
     public function getName(): ?string
     {
         return $this->name;

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Enum;
+namespace App\Data\Enums;
 
-use App\Enum\Permissions as PermissionEnum;
+use App\Data\Enums\Permissions as PermissionEnum;
 
 enum Roles: string
 {

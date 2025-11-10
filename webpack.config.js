@@ -14,7 +14,7 @@ Encore.setOutputPath("public/build/")
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
     .cleanupOutputBeforeBuild()
-    .enableBuildNotifications()
+    // .enableBuildNotifications()
     .enableSourceMaps(!Encore.isProduction())
     .enableVersioning(Encore.isProduction())
     .configureBabel((config) => {

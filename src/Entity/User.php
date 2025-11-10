@@ -118,6 +118,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @see UserInterface
      * @return string[]
      */
+    #[Groups(['user:view','user:edit', 'user:create'])]
     public function getRoles(): array
     {
         return array_map(fn(Role $role) => $role->getName(), $this->roles->toArray());

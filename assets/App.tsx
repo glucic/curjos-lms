@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
 import Home from "@/pages/Home";
 import Login from "@/pages/auth/Login";
-import Register from "@/pages/auth/Register";
 import Course from "@/pages/Course";
 import CreateCourse from "@/pages/CreateCourse";
 import CreateLesson from "@/pages/CreateLesson";
@@ -25,7 +24,6 @@ const App: React.FC = () => {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
                 <Route
                     path="/course/:courseId"
                     element={
@@ -149,7 +147,7 @@ const App: React.FC = () => {
                 <Route
                     path="organization/:organizationId/user/create"
                     element={
-                        <RoleGuard allowedRoles={["ADMIN", "ROLE_SUPER_ADMIN"]}>
+                        <RoleGuard allowedRoles={["ROLE_ADMIN", "ROLE_SUPER_ADMIN"]}>
                             <CreateUser />
                         </RoleGuard>
                     }
@@ -157,7 +155,7 @@ const App: React.FC = () => {
                 <Route
                     path="organization/:organizationId/user/:userId/edit"
                     element={
-                        <RoleGuard allowedRoles={["ADMIN", "ROLE_SUPER_ADMIN"]}>
+                        <RoleGuard allowedRoles={["ROLE_ADMIN", "ROLE_SUPER_ADMIN"]}>
                             <EditUser />
                         </RoleGuard>
                     }

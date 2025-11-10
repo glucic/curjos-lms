@@ -18,8 +18,8 @@ class PermissionRepository extends ServiceEntityRepository
 
     public function findOneByName(string $name): ?Permission
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.name = :name')
+        return $this->createQueryBuilder('permission')
+            ->andWhere('permission.name = :name')
             ->setParameter('name', $name)
             ->getQuery()
             ->getOneOrNullResult();
@@ -27,19 +27,19 @@ class PermissionRepository extends ServiceEntityRepository
 
     public function findByResource(string $resource): array
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.resource = :resource')
+        return $this->createQueryBuilder('permission')
+            ->andWhere('permission.resource = :resource')
             ->setParameter('resource', $resource)
-            ->orderBy('p.action', 'ASC')
+            ->orderBy('permission.action', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
     public function findAllGroupedByResource(): array
     {
-        $permissions = $this->createQueryBuilder('p')
-            ->orderBy('p.resource', 'ASC')
-            ->addOrderBy('p.action', 'ASC')
+        $permissions = $this->createQueryBuilder('permission')
+            ->orderBy('permission.resource', 'ASC')
+            ->addOrderBy('permission.action', 'ASC')
             ->getQuery()
             ->getResult();
 

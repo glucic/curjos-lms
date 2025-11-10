@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Enum\Permissions;
+use App\Data\Enums\Permissions;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 #[ORM\Table(name: 'courses')]

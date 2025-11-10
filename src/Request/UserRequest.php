@@ -3,7 +3,7 @@
 namespace App\Request;
 
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Enum\Roles;
+use App\Data\Enums\Roles;
 
 class UserRequest
 {

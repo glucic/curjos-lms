@@ -34,11 +34,7 @@ apiClient.interceptors.response.use(
 export default apiClient;
 
 export const authApi = {
-    register: (data: RegisterFormData) =>
-        apiClient.post("/auth/register", data),
-
     login: (data: LoginFormData) => apiClient.post("/auth/login", data),
-
     me: () => apiClient.get("/auth/me"),
 };
 
@@ -49,7 +45,6 @@ export const courseApi = {
     updateCourse: (id: number, data: any) =>
         apiClient.put(`/courses/${id}`, data),
     deleteCourse: (id: number) => apiClient.delete(`/courses/${id}`),
-
     getLesson: (courseId: number, lessonId: number) =>
         apiClient.get(`/courses/${courseId}/lessons/${lessonId}`),
     createLesson: (courseId: number, data: any) =>

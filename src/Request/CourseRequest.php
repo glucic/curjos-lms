@@ -2,7 +2,7 @@
 
 namespace App\Request;
 
-use App\Requests\BaseRequest;
+use App\Request\BaseRequest;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CourseRequest extends BaseRequest

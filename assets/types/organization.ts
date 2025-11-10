@@ -9,6 +9,7 @@ export interface User {
     role: string;
     password?: string;
     confirmPassword?: string;
+    organizationId?: number;
 }
 
 export interface Organization {

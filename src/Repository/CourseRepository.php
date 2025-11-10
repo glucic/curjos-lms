@@ -15,8 +15,8 @@ class CourseRepository extends ServiceEntityRepository
 
     public function findByOrganization(Organization $organization): array
     {
-        return $this->createQueryBuilder('c')
-            ->where('c.organization = :organization')
+        return $this->createQueryBuilder('course')
+            ->where('course.organization = :organization')
             ->setParameter('organization', $organization)
             ->getQuery()
             ->getResult();
@@ -24,9 +24,9 @@ class CourseRepository extends ServiceEntityRepository
 
     public function findOneByIdAndOrganization(int $id, Organization $organization): ?Course
     {
-        return $this->createQueryBuilder('c')
-            ->where('c.id = :id')
-            ->andWhere('c.organization = :organization')
+        return $this->createQueryBuilder('course')
+            ->where('course.id = :id')
+            ->andWhere('course.organization = :organization')
             ->setParameter('id', $id)
             ->setParameter('organization', $organization)
             ->getQuery()
