@@ -15,13 +15,12 @@ import { useNavigate } from "react-router-dom";
 import { useCourseData } from "@/hooks/use-course";
 import { useAuthContext } from "@/context/AuthContext";
 import { Course } from "@/types/course";
+import RoleGuard from "@/RoleGuard";
 
 const CoursesList: React.FC = () => {
     const { courses, loading, error } = useCourseData();
     const navigate = useNavigate();
     const { user } = useAuthContext();
-    const isNotStudent =
-        user && user.roles && !user.roles.includes("ROLE_STUDENT");
 
     if (loading)
         return (
@@ -40,7 +39,14 @@ const CoursesList: React.FC = () => {
                     No courses available for your Organization{" "}
                     {user?.organization?.name}.
                 </Typography>
-                {isNotStudent && (
+                <RoleGuard
+                    allowedRoles={[
+                        "ROLE_INSTRUCTOR",
+                        "ROLE_ADMIN",
+                        "ROLE_SUPER_ADMIN",
+                    ]}
+                    redirect={false}
+                >
                     <Box sx={{ textAlign: "center", mt: 5 }}>
                         <Button
                             variant="outlined"
@@ -51,7 +57,7 @@ const CoursesList: React.FC = () => {
                             Start by creating your first course.
                         </Button>
                     </Box>
-                )}
+                </RoleGuard>
             </Container>
         );
 
@@ -68,7 +74,14 @@ const CoursesList: React.FC = () => {
                     Courses
                 </Typography>
 
-                {isNotStudent && (
+                <RoleGuard
+                    allowedRoles={[
+                        "ROLE_INSTRUCTOR",
+                        "ROLE_ADMIN",
+                        "ROLE_SUPER_ADMIN",
+                    ]}
+                    redirect={false}
+                >
                     <Button
                         variant="contained"
                         color="primary"
@@ -76,7 +89,7 @@ const CoursesList: React.FC = () => {
                     >
                         + New Course
                     </Button>
-                )}
+                </RoleGuard>
             </Grid>
 
             <Grid

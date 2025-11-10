@@ -15,6 +15,7 @@ import {
     Edit as EditIcon,
     Delete as DeleteIcon,
 } from "@mui/icons-material";
+import RoleGuard from "@/RoleGuard";
 
 const LessonPage: React.FC = () => {
     const { courseId, lessonId } = useParams<{
@@ -96,7 +97,14 @@ const LessonPage: React.FC = () => {
                     Back to Course
                 </Button>
 
-                {isNotStudent && (
+                <RoleGuard
+                    allowedRoles={[
+                        "ROLE_INSTRUCTOR",
+                        "ROLE_ADMIN",
+                        "ROLE_SUPER_ADMIN",
+                    ]}
+                    redirect={false}
+                >
                     <Box sx={{ display: "flex", gap: 1.5 }}>
                         <Button
                             variant="outlined"
@@ -130,7 +138,7 @@ const LessonPage: React.FC = () => {
                             Delete Lesson
                         </Button>
                     </Box>
-                )}
+                </RoleGuard>
             </Box>
 
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>

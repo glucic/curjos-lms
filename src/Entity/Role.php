@@ -21,7 +21,7 @@ class Role
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['me:read'])]
+    #[Groups(['me:read', 'user:create'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]

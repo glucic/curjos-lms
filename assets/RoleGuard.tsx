@@ -7,12 +7,14 @@ interface RoleGuardProps {
     allowedRoles: string[];
     children: React.ReactNode;
     fallbackPath?: string;
+    redirect?: boolean;
 }
 
 const RoleGuard: React.FC<RoleGuardProps> = ({
     allowedRoles,
     children,
     fallbackPath = "/",
+    redirect = true,
 }) => {
     const { user, isAuthenticated, fetchUser, loading } = useAuthContext();
     const [checking, setChecking] = useState(true);
@@ -26,21 +28,16 @@ const RoleGuard: React.FC<RoleGuardProps> = ({
                 if (!user && isAuthenticated) {
                     await fetchUser();
                 }
-                if (!isAuthenticated || !user) {
-                    navigate(fallbackPath, { replace: true });
-                    return;
-                }
 
-                const hasAccess = user.roles?.some((role) =>
-                    allowedRoles.includes(role)
-                );
+                const hasAccess =
+                    isAuthenticated &&
+                    user?.roles?.some((role) => allowedRoles.includes(role));
 
-                if (!hasAccess) {
+                if (!hasAccess && redirect) {
                     navigate(fallbackPath, { replace: true });
-                    return;
                 }
             } catch {
-                navigate(fallbackPath, { replace: true });
+                if (redirect) navigate(fallbackPath, { replace: true });
             } finally {
                 setChecking(false);
             }
@@ -54,23 +51,35 @@ const RoleGuard: React.FC<RoleGuardProps> = ({
         allowedRoles,
         navigate,
         fallbackPath,
+        redirect,
         loading,
     ]);
 
     if (loading || checking) {
-        return (
-            <Container
-                maxWidth={false}
-                sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "100vh",
-                }}
-            >
-                <CircularProgress />
-            </Container>
-        );
+        if (redirect) {
+            return (
+                <Container
+                    maxWidth={false}
+                    sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100vh",
+                    }}
+                >
+                    <CircularProgress />
+                </Container>
+            );
+        } else {
+            return null;
+        }
+    }
+
+    if (!redirect) {
+        const hasAccess =
+            isAuthenticated &&
+            user?.roles?.some((role) => allowedRoles.includes(role));
+        if (!hasAccess) return null;
     }
 
     return <>{children}</>;

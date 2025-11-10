@@ -21,13 +21,11 @@ import {
     Edit as EditIcon,
     Delete as DeleteIcon,
 } from "@mui/icons-material";
+import RoleGuard from "@/RoleGuard";
 
 const Course: React.FC = () => {
     const { courseId } = useParams<{ courseId: string }>();
     const navigate = useNavigate();
-    const { user } = useAuthContext();
-
-    const isNotStudent = user && !user.roles.includes("ROLE_STUDENT");
 
     const { course, loading, error, deleteCourse } = useCourseData(
         courseId ? parseInt(courseId) : undefined
@@ -37,7 +35,7 @@ const Course: React.FC = () => {
         if (!courseId) return;
         try {
             await deleteCourse(parseInt(courseId));
-            navigate("/"); // redirect after deletion
+            navigate("/");
         } catch (e) {
             console.error(e);
         }
@@ -103,7 +101,10 @@ const Course: React.FC = () => {
                     Back to Homepage
                 </Button>
 
-                {isNotStudent && (
+                <RoleGuard
+                    allowedRoles={["ROLE_INSTRUCTOR", "ROLE_ADMIN"]}
+                    redirect={false}
+                >
                     <Box
                         sx={{
                             display: "flex",
@@ -155,7 +156,7 @@ const Course: React.FC = () => {
                             Delete Course
                         </Button>
                     </Box>
-                )}
+                </RoleGuard>
             </Box>
 
             {course.lessons && course.lessons.length > 0 ? (

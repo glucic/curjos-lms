@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 #[ORM\Table(name: 'organizations')]
@@ -19,35 +20,39 @@ class Organization
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['me:read', 'course:view'])]
+    #[Groups(['me:read', 'course:view', 'organization:view', 'organization:edit'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['me:read', 'course:view'])]
+    #[Groups(['me:read', 'course:view', 'organization:view', 'organization:edit'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(['me:read'])]
+    #[Groups(['me:read', 'organization:view', 'organization:edit'])]
     private ?string $slug = null;
 
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
-    #[Groups(['me:read'])]
+    #[Groups(['organization:view', 'organization:edit'])]
     private bool $isActive = true;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
-    #[Groups(['me:read'])]
+    #[Groups(['organization:view', 'organization:edit'])]
     private bool $isSystemOrganization = false;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Groups(['organization:view', 'organization:edit'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Groups(['organization:view', 'organization:edit'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\OneToMany(mappedBy: 'organization', targetEntity: User::class)]
+    #[Groups(['organization:view'])]
     private Collection $users;
 
     #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Role::class)]
+    #[Ignore]
     private Collection $roles;
 
     #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Course::class)]
@@ -59,12 +64,6 @@ class Organization
         $this->roles = new ArrayCollection();
         $this->courses = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
-    }
-
-    #[ORM\PreUpdate]
-    public function setUpdatedAtValue(): void
-    {
-        $this->updatedAt = new \DateTimeImmutable();
     }
 
     #[ORM\PrePersist]

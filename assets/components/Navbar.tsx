@@ -1,13 +1,15 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { redirect, Link as RouterLink, useNavigate } from "react-router-dom";
 import SchoolIcon from "@mui/icons-material/School";
 import { useAuthContext } from "@/context/AuthContext";
+import RoleGuard from "@/RoleGuard";
+import { red } from "@mui/material/colors";
 
 const Navbar: React.FC = () => {
     const { user, isAuthenticated, logout } = useAuthContext();
     const navigate = useNavigate();
-
+    console.log(user);
     const handleLogout = () => {
         logout();
         navigate("/");
@@ -32,6 +34,18 @@ const Navbar: React.FC = () => {
                             >
                                 {user.firstName} {user.lastName}
                             </Button>
+                            <RoleGuard
+                                allowedRoles={["ROLE_ADMIN"]}
+                                redirect={false}
+                            >
+                                <Button
+                                    color="inherit"
+                                    component={RouterLink}
+                                    to="/course/create"
+                                >
+                                    Manage {user.organization?.name}
+                                </Button>
+                            </RoleGuard>
                             <Button color="inherit" onClick={handleLogout}>
                                 Logout
                             </Button>
