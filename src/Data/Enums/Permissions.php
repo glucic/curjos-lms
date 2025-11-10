@@ -82,7 +82,7 @@ enum Permissions: string
 
     public function description(): string
     {
-        return $this->label(); // alias
+        return $this->label();
     }
 
     public static function groupedByResource(): array

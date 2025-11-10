@@ -147,7 +147,9 @@ const App: React.FC = () => {
                 <Route
                     path="organization/:organizationId/user/create"
                     element={
-                        <RoleGuard allowedRoles={["ROLE_ADMIN", "ROLE_SUPER_ADMIN"]}>
+                        <RoleGuard
+                            allowedRoles={["ROLE_ADMIN", "ROLE_SUPER_ADMIN"]}
+                        >
                             <CreateUser />
                         </RoleGuard>
                     }
@@ -155,7 +157,9 @@ const App: React.FC = () => {
                 <Route
                     path="organization/:organizationId/user/:userId/edit"
                     element={
-                        <RoleGuard allowedRoles={["ROLE_ADMIN", "ROLE_SUPER_ADMIN"]}>
+                        <RoleGuard
+                            allowedRoles={["ROLE_ADMIN", "ROLE_SUPER_ADMIN"]}
+                        >
                             <EditUser />
                         </RoleGuard>
                     }

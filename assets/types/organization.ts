@@ -1,3 +1,5 @@
+import { Role } from "./auth";
+
 export interface User {
     id: number;
     email: string;
@@ -6,7 +8,7 @@ export interface User {
     isActive: boolean;
     createdAt: string;
     updatedAt?: string | null;
-    role: string;
+    role: Role;
     password?: string;
     confirmPassword?: string;
     organizationId?: number;

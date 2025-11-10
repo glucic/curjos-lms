@@ -3,7 +3,7 @@
 namespace App\Request;
 
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Data\Enums\Roles;
+use App\Entity\Role;
 
 class UserRequest
 {
@@ -19,8 +19,8 @@ class UserRequest
 
     public ?string $password = null;
 
-    #[Assert\NotBlank]
-    public string $role = Roles::STUDENT->value;
+    #[Assert\NotNull]
+    public ?Role $role = null;
 
     public ?int $organizationId = null;
 }

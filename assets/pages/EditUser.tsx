@@ -6,12 +6,18 @@ import {
     Button,
     CircularProgress,
     Box,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControl,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUsers } from "@/hooks/use-users";
 import { useOrganizations } from "@/hooks/use-organization";
 
-const EditUser: React.FC = () => {
+const roleOptions = ["ROLE_ADMIN", "ROLE_STUDENT", "ROLE_INSTRUCTOR"];
+
+export const EditUser: React.FC = () => {
     const { organizationId, userId } = useParams<{
         organizationId: string;
         userId: string;
@@ -26,7 +32,9 @@ const EditUser: React.FC = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
-    const [role, setRole] = useState("");
+    const [role, setRole] = useState<{ name: string }>({
+        name: "ROLE_STUDENT",
+    });
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -40,13 +48,18 @@ const EditUser: React.FC = () => {
             setFirstName(user.firstName);
             setLastName(user.lastName);
             setEmail(user.email);
-            setRole(user.role);
+            setRole({ name: user.role?.name });
         }
     }, [user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!orgId || !uId) return;
+        if (password && password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
         try {
             await updateUser(uId, {
                 firstName,
@@ -68,7 +81,6 @@ const EditUser: React.FC = () => {
             <Typography variant="h4" sx={{ mt: 4, mb: 2 }}>
                 Edit User in {organization.name}
             </Typography>
-
             <Box
                 component="form"
                 onSubmit={handleSubmit}
@@ -93,13 +105,20 @@ const EditUser: React.FC = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                 />
-                <TextField
-                    label="Role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    helperText="Roles: ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_STUDENT"
-                    required
-                />
+                <FormControl required>
+                    <InputLabel id="role-label">Role</InputLabel>
+                    <Select
+                        labelId="role-label"
+                        value={role?.name || ""}
+                        onChange={(e) => setRole({ name: e.target.value })}
+                    >
+                        {roleOptions.map((r) => (
+                            <MenuItem key={r} value={r}>
+                                {r}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
                 <TextField
                     label="Password"
                     type="password"

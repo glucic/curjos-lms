@@ -181,7 +181,6 @@ export const useCourseData = (courseId?: number, lessonId?: number) => {
                 );
                 setLesson(response.data.data);
 
-                // update lesson in course if available
                 if (course?.lessons) {
                     setCourse({
                         ...course,

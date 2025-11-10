@@ -18,12 +18,20 @@ class AppFixtures extends Fixture
     {
         $permissions = $this->createPermissions($manager);
         
+        $superAdminRole = $this->createGlobalRole($manager, Roles::SUPER_ADMIN, $permissions);
+        $adminRole = $this->createGlobalRole($manager, Roles::ADMIN, $permissions);
+        $instructorRole = $this->createGlobalRole($manager, Roles::INSTRUCTOR, $permissions);
+        $studentRole = $this->createGlobalRole($manager, Roles::STUDENT, $permissions);
+
         $systemOrg = $this->createOrganization($manager, 'System', 'system', true);
-        $superAdminRole = $this->createRole($manager, Roles::SUPER_ADMIN, $systemOrg, $permissions);
-        $this->createUser($manager, 'super@system.local', 'Super', 'Admin', 'SuperSecret123!', $systemOrg, [$superAdminRole]);
+        $this->createUser($manager, 'super@system.local', 'Super', 'Admin', 'SuperSecret123!', $systemOrg, $superAdminRole);
 
         $demoOrg = $this->createOrganization($manager, 'Demo University', 'demo-university');
-        $demoRoles = $this->createRolesForOrganization($manager, $demoOrg, $permissions);
+        $demoRoles = [
+            'ADMIN' => $adminRole,
+            'INSTRUCTOR' => $instructorRole,
+            'STUDENT' => $studentRole
+        ];
         $this->createDemoUsers($manager, $demoOrg, $demoRoles);
 
         $manager->flush();
@@ -54,13 +62,12 @@ class AppFixtures extends Fixture
         return $org;
     }
 
-    private function createRole(ObjectManager $manager, Roles $roleEnum, Organization $organization, array $permissions): Role
+    private function createGlobalRole(ObjectManager $manager, Roles $roleEnum, array $permissions): Role
     {
         $role = new Role();
         $role->setName($roleEnum->value);
         $role->setDescription($roleEnum->description());
-        $role->setOrganization($organization);
-        $role->setIsSystemRole($organization->isSystemOrganization());
+        $role->setIsSystemRole($roleEnum === Roles::SUPER_ADMIN);
 
         foreach ($roleEnum->defaultPermissions() as $permName) {
             if (isset($permissions[$permName])) {
@@ -72,16 +79,7 @@ class AppFixtures extends Fixture
         return $role;
     }
 
-    private function createRolesForOrganization(ObjectManager $manager, Organization $org, array $permissions): array
-    {
-        $roles = [];
-        foreach ([Roles::ADMIN, Roles::INSTRUCTOR, Roles::STUDENT] as $roleEnum) {
-            $roles[$roleEnum->name] = $this->createRole($manager, $roleEnum, $org, $permissions);
-        }
-        return $roles;
-    }
-
-    private function createUser(ObjectManager $manager, string $email, string $first, string $last, string $password, Organization $org, array $roles): User
+    private function createUser(ObjectManager $manager, string $email, string $first, string $last, string $password, Organization $org, Role $role): User
     {
         $user = new User();
         $user->setEmail($email);
@@ -90,20 +88,16 @@ class AppFixtures extends Fixture
         $user->setOrganization($org);
         $user->setIsActive(true);
         $user->setPassword($this->passwordHasher->hashPassword($user, $password));
-
-        foreach ($roles as $role) {
-            $user->addRole($role);
-        }
-
+        $user->setRole($role);
         $manager->persist($user);
         return $user;
     }
 
     private function createDemoUsers(ObjectManager $manager, Organization $org, array $roles): void
     {
-        $admin = $this->createUser($manager, 'admin@demo.com', 'John', 'Admin', 'admin123', $org, [$roles['ADMIN']]);
-        $instructor = $this->createUser($manager, 'instructor@demo.com', 'Jane', 'Instructor', 'instructor123', $org, [$roles['INSTRUCTOR']]);
-        $student = $this->createUser($manager, 'student@demo.com', 'Bob', 'Student', 'student123', $org, [$roles['STUDENT']]);
+        $admin = $this->createUser($manager, 'admin@demo.com', 'John', 'Admin', 'admin123', $org, $roles['ADMIN']);
+        $instructor = $this->createUser($manager, 'instructor@demo.com', 'Jane', 'Instructor', 'instructor123', $org, $roles['INSTRUCTOR']);
+        $student = $this->createUser($manager, 'student@demo.com', 'Bob', 'Student', 'student123', $org, $roles['STUDENT']);
         $this->createDemoCourses($manager, $org, $instructor);
     }
 

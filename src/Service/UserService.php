@@ -8,7 +8,6 @@ use App\Entity\Organization;
 use App\Request\UserRequest;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserService extends BaseService
 {
@@ -49,15 +48,17 @@ class UserService extends BaseService
 
         $user->setOrganization($org);
 
-        $role = $this->entityManager
-            ->getRepository(Role::class)
-            ->findOneByNameAndOrganization($data->role, $org->getId());
+        if ($data->role) {
+            $role = $this->entityManager
+                ->getRepository(Role::class)
+                ->findByName($data->role->getName());
 
-        if (!$role) {
-            throw new \InvalidArgumentException('Invalid role selected');
+            if (!$role) {
+                throw new \InvalidArgumentException('Invalid role selected');
+            }
+
+            $user->setRole($role);
         }
-
-        $user->addRole($role);
 
         $this->persistAndFlush($user);
 
@@ -77,20 +78,15 @@ class UserService extends BaseService
         }
 
         if ($data->role) {
-            $org = $this->access->isSuperAdmin($actor)
-                    ? $this->entityManager->getRepository(Organization::class)->find($data->organizationId)
-                    : $actor->getOrganization();
-
             $role = $this->entityManager
                 ->getRepository(Role::class)
-                ->findOneByNameAndOrganization($data->role, $org->getId());
+                ->findByName($data->role->getName());
 
             if (!$role) {
                 throw new \InvalidArgumentException('Invalid role selected');
             }
 
-            $user->getRoleEntities()->clear();
-            $user->addRole($role);
+            $user->setRole($role);
         }
 
         $this->persistAndFlush($user);

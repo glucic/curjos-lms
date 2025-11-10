@@ -11,17 +11,16 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RoleRepository::class)]
 #[ORM\Table(name: 'roles')]
-#[UniqueEntity(fields: ['name', 'organization'], message: 'This role name already exists in this organization')]
-#[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(fields: ['name'], message: 'This role name already exists')]
 class Role
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:view', 'user:create', 'user:edit'])]
+    #[Groups(['me:read', 'user:view', 'user:create', 'user:edit'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 50, unique: true)]
     #[Groups(['me:read', 'user:view', 'user:create', 'user:edit'])]
     private ?string $name = null;
 
@@ -37,22 +36,13 @@ class Role
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'roles')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Organization $organization = null;
-
     #[ORM\ManyToMany(targetEntity: Permission::class)]
     #[ORM\JoinTable(name: 'role_permissions')]
-    #[Groups(['me:read'])]
     private Collection $permissions;
-
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'roles')]
-    private Collection $users;
 
     public function __construct()
     {
         $this->permissions = new ArrayCollection();
-        $this->users = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -62,13 +52,11 @@ class Role
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    #[Groups(['user:view', 'user:edit', 'user:create'])]
-    public function getId(): ?int
+    public function getId(): ?int 
     {
         return $this->id;
     }
 
-    #[Groups(['user:view', 'user:edit', 'user:create'])]
     public function getName(): ?string
     {
         return $this->name;
@@ -129,18 +117,6 @@ class Role
         return $this;
     }
 
-    public function getOrganization(): ?Organization
-    {
-        return $this->organization;
-    }
-
-    public function setOrganization(?Organization $organization): static
-    {
-        $this->organization = $organization;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Permission>
      */
@@ -165,41 +141,10 @@ class Role
         return $this;
     }
 
-    public function hasPermission(string $permissionName): bool
-    {
+    public function hasPermission(string $permissionName): bool {
         foreach ($this->permissions as $permission) {
-            if ($permission->getName() === $permissionName) {
-                return true;
-            }
+            if ($permission->getName() === $permissionName) return true;
         }
-
         return false;
-    }
-
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): static
-    {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->addRole($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): static
-    {
-        if ($this->users->removeElement($user)) {
-            $user->removeRole($this);
-        }
-
-        return $this;
     }
 }

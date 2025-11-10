@@ -31,7 +31,8 @@ const RoleGuard: React.FC<RoleGuardProps> = ({
 
                 const hasAccess =
                     isAuthenticated &&
-                    user?.roles?.some((role) => allowedRoles.includes(role));
+                    user?.role?.name &&
+                    allowedRoles.includes(user.role.name);
 
                 if (!hasAccess && redirect) {
                     navigate(fallbackPath, { replace: true });
@@ -78,7 +79,8 @@ const RoleGuard: React.FC<RoleGuardProps> = ({
     if (!redirect) {
         const hasAccess =
             isAuthenticated &&
-            user?.roles?.some((role) => allowedRoles.includes(role));
+            user?.role?.name &&
+            allowedRoles.includes(user.role.name);
         if (!hasAccess) return null;
     }
 

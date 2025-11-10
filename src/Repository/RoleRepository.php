@@ -17,16 +17,6 @@ class RoleRepository extends ServiceEntityRepository
         parent::__construct($registry, Role::class);
     }
 
-    public function findByOrganization(int $organizationId): array
-    {
-        return $this->createQueryBuilder('role')
-            ->andWhere('role.organization = :organizationId')
-            ->setParameter('organizationId', $organizationId)
-            ->orderBy('role.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
     public function findSystemRoles(): array
     {
         return $this->createQueryBuilder('role')
@@ -37,14 +27,12 @@ class RoleRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findOneByNameAndOrganization(string $name, int $organizationId): ?Role
+    public function findByName(string $name): ?Role
     {
-        return $this->createQueryBuilder('role')
-            ->andWhere('role.name = :name')
-            ->andWhere('role.organization = :organizationId')
-            ->andWhere('role.name != :superAdmin')
+        return $this->createQueryBuilder('r')
+            ->where('r.name = :name')
+            ->andWhere('r.name != :superAdmin')
             ->setParameter('name', $name)
-            ->setParameter('organizationId', $organizationId)
             ->setParameter('superAdmin', Roles::SUPER_ADMIN->value)
             ->getQuery()
             ->getOneOrNullResult();

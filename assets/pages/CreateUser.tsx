@@ -6,12 +6,18 @@ import {
     Button,
     CircularProgress,
     Box,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControl,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUsers } from "@/hooks/use-users";
 import { useOrganizations } from "@/hooks/use-organization";
 
-const CreateUser: React.FC = () => {
+const roleOptions = ["ROLE_STUDENT", "ROLE_ADMIN", "ROLE_INSTRUCTOR"];
+
+export const CreateUser: React.FC = () => {
     const { organizationId } = useParams<{ organizationId: string }>();
     const orgId = organizationId ? parseInt(organizationId) : undefined;
     const navigate = useNavigate();
@@ -22,26 +28,31 @@ const CreateUser: React.FC = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
-    const [role, setRole] = useState("ROLE_STUDENT");
+    const [role, setRole] = useState<{ name: string }>({
+        name: "ROLE_STUDENT",
+    });
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
     useEffect(() => {
-        if (orgId) {
-            fetchOrganization(orgId);
-        }
+        if (orgId) fetchOrganization(orgId);
     }, [orgId, fetchOrganization]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!orgId) return;
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
         try {
             await createUser({
                 firstName,
                 lastName,
                 email,
                 role,
-                ...(password ? { password } : {}),
+                password,
                 organizationId: orgId,
             });
             navigate(`/organization/${orgId}`);
@@ -57,7 +68,6 @@ const CreateUser: React.FC = () => {
             <Typography variant="h4" sx={{ mt: 4, mb: 2 }}>
                 Add User to {organization.name}
             </Typography>
-
             <Box
                 component="form"
                 onSubmit={handleSubmit}
@@ -82,13 +92,20 @@ const CreateUser: React.FC = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                 />
-                <TextField
-                    label="Role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    helperText="Roles: ROLE_ADMIN, ROLE_SUPER_ADMIN, ROLE_STUDENT"
-                    required
-                />
+                <FormControl required>
+                    <InputLabel id="role-label">Role</InputLabel>
+                    <Select
+                        labelId="role-label"
+                        value={role.name}
+                        onChange={(e) => setRole({ name: e.target.value })}
+                    >
+                        {roleOptions.map((r) => (
+                            <MenuItem key={r} value={r}>
+                                {r}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
                 <TextField
                     label="Password"
                     type="password"

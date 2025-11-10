@@ -28,8 +28,12 @@ export interface User {
     isActive: boolean;
     createdAt: string;
     organization: Organization;
-    roles: string[];
+    role: Role;
     permissions: string[];
+}
+
+export interface Role {
+    name: string;
 }
 
 export interface AuthResult {

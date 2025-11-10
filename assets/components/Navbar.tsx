@@ -9,7 +9,7 @@ import { red } from "@mui/material/colors";
 const Navbar: React.FC = () => {
     const { user, isAuthenticated, logout } = useAuthContext();
     const navigate = useNavigate();
-    console.log(user);
+
     const handleLogout = () => {
         logout();
         navigate("/");

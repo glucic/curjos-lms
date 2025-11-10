@@ -23,8 +23,6 @@ const LessonPage: React.FC = () => {
         lessonId: string;
     }>();
     const navigate = useNavigate();
-    const { user } = useAuthContext();
-    const isNotStudent = user && !user.roles.includes("ROLE_STUDENT");
 
     const { lesson, loading, error, deleteLesson } = useCourseData(
         Number(courseId),

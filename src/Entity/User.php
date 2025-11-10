@@ -57,14 +57,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['me:read'])]
     private Organization $organization;
 
-    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users', cascade: ['remove'], orphanRemoval: true)]
-    #[ORM\JoinTable(name: 'user_roles')]
+    #[ORM\ManyToOne(targetEntity: Role::class)]
+    #[ORM\JoinColumn(name: 'role_id', referencedColumnName: 'id', nullable: false)]
     #[Groups(['me:read', 'user:view', 'user:edit', 'user:create'])]
-    private Collection $roles;
+    private ?Role $role = null;
 
     public function __construct()
     {
-        $this->roles = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -121,30 +120,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:view','user:edit', 'user:create'])]
     public function getRoles(): array
     {
-        return array_map(fn(Role $role) => $role->getName(), $this->roles->toArray());
+        return $this->role ? [$this->role->getName()] : [];
     }
 
-    /**
-     * @return Collection<int, Role>
-     */
-    public function getRoleEntities(): Collection
+    public function getRole(): ?Role
     {
-        return $this->roles;
+        return $this->role;
     }
 
-    public function addRole(Role $role): static
+    public function setRole(?Role $role): static
     {
-        if (!$this->roles->contains($role)) {
-            $this->roles->add($role);
-        }
-
-        return $this;
-    }
-
-    public function removeRole(Role $role): static
-    {
-        $this->roles->removeElement($role);
-
+        $this->role = $role;
         return $this;
     }
 
@@ -243,13 +229,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function hasRole(string $roleName): bool
     {
-        foreach ($this->roles as $role) {
-            if ($role->getName() === $roleName) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->role && $this->role->getName() === $roleName;
     }
 
     /**
@@ -257,14 +237,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function hasPermission(string $permissionName): bool
     {
-        foreach ($this->roles as $role) {
-            foreach ($role->getPermissions() as $permission) {
+        if ($this->role) {
+            foreach ($this->role->getPermissions() as $permission) {
                 if ($permission->getName() === $permissionName) {
                     return true;
                 }
             }
         }
-
         return false;
     }
 
@@ -273,8 +252,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getSerializedPermissions(): array
     {
         $permissions = [];
-        foreach ($this->getRoleEntities() as $role) {
-            foreach ($role->getPermissions() as $permission) {
+        if ($this->role) {
+            foreach ($this->role->getPermissions() as $permission) {
                 $permissions[$permission->getName()] = true;
             }
         }

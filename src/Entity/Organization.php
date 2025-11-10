@@ -51,17 +51,12 @@ class Organization
     #[Groups(['organization:view'])]
     private Collection $users;
 
-    #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Role::class, cascade: ['remove'], orphanRemoval: true)]
-    #[Ignore]
-    private Collection $roles;
-
     #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Course::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $courses;
 
     public function __construct()
     {
         $this->users = new ArrayCollection();
-        $this->roles = new ArrayCollection();
         $this->courses = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
@@ -179,36 +174,6 @@ class Organization
 
         return $this;
     }
-
-    /**
-     * @return Collection<int, Role>
-     */
-    public function getRoles(): Collection
-    {
-        return $this->roles;
-    }
-
-    public function addRole(Role $role): static
-    {
-        if (!$this->roles->contains($role)) {
-            $this->roles->add($role);
-            $role->setOrganization($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRole(Role $role): static
-    {
-        if ($this->roles->removeElement($role)) {
-            if ($role->getOrganization() === $this) {
-                $role->setOrganization(null);
-            }
-        }
-
-        return $this;
-    }
-
     
     /**
      * @return Collection<int, Course>
