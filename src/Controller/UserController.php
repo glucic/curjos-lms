@@ -108,26 +108,29 @@ class UserController extends AbstractController
         $user->setLastName($request->lastName ?? $user->getLastName());
         $user->setEmail($request->email ?? $user->getEmail());
         if ($request->password) {
-            $user->setPassword($request->password); // hash in setter
+            $user->setPassword($request->password);
         }
 
-        // Update roles
-        if (!empty($request->roles)) {
+        if (!empty($request->role)) {
             foreach ($user->getRoleEntities() as $existingRole) {
                 $user->removeRole($existingRole);
             }
-            foreach ($request->roles as $roleName) {
-                $role = $this->entityManager->getRepository(Role::class)
-                    ->findOneBy(['name' => $roleName, 'organization' => $user->getOrganization()]);
-                if ($role) {
-                    $user->addRole($role);
-                }
+
+            $role = $this->entityManager->getRepository(Role::class)
+                ->findOneBy(['name' => $request->role]);
+
+            if (empty($role) || $role->getName() == Roles::SUPER_ADMIN->value) {
+                return $this->error('Incorrect Role', 'validation', 400);
+            }
+
+            if ($role) {
+                $user->addRole($role);
             }
         }
 
         $this->entityManager->flush();
 
-        return $this->success($user, 200, ['groups' => [Permissions::USER_EDIT->value]]);
+        return $this->success($user, 200, context:['groups' => [Permissions::USER_EDIT->value]]);
     }
 
     #[Route('/{id}', name: 'api_users_delete', methods: ['DELETE'])]

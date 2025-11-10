@@ -47,15 +47,15 @@ class Organization
     #[Groups(['organization:view', 'organization:edit'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\OneToMany(mappedBy: 'organization', targetEntity: User::class)]
+    #[ORM\OneToMany(mappedBy: 'organization', targetEntity: User::class, cascade: ['remove'], orphanRemoval: true)]
     #[Groups(['organization:view'])]
     private Collection $users;
 
-    #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Role::class)]
+    #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Role::class, cascade: ['remove'], orphanRemoval: true)]
     #[Ignore]
     private Collection $roles;
 
-    #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Course::class)]
+    #[ORM\OneToMany(mappedBy: 'organization', targetEntity: Course::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $courses;
 
     public function __construct()

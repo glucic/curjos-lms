@@ -57,7 +57,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['me:read'])]
     private Organization $organization;
 
-    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
+    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users', cascade: ['remove'], orphanRemoval: true)]
     #[ORM\JoinTable(name: 'user_roles')]
     #[Groups(['me:read', 'user:view', 'user:edit', 'user:create'])]
     private Collection $roles;

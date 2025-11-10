@@ -37,12 +37,12 @@ class Course
     #[Groups([Permissions::COURSE_CREATE->value, Permissions::COURSE_VIEW->value])]
     private ?Organization $organization = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'courses')]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     #[Groups([Permissions::COURSE_CREATE->value])]
     private ?User $instructor = null;
 
-    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Lesson::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'course', targetEntity: Lesson::class, cascade: ['remove'], orphanRemoval: true)]
     #[Groups([Permissions::LESSON_VIEW->value])]
     private Collection $lessons;
 

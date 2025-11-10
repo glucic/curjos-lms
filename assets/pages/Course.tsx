@@ -102,7 +102,11 @@ const Course: React.FC = () => {
                 </Button>
 
                 <RoleGuard
-                    allowedRoles={["ROLE_INSTRUCTOR", "ROLE_ADMIN"]}
+                    allowedRoles={[
+                        "ROLE_INSTRUCTOR",
+                        "ROLE_ADMIN",
+                        "ROLE_SUPER_ADMIN",
+                    ]}
                     redirect={false}
                 >
                     <Box

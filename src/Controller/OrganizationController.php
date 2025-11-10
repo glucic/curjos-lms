@@ -24,9 +24,19 @@ class OrganizationController extends AbstractController
     #[IsGranted(Roles::SUPER_ADMIN->value)]
     public function list(): JsonResponse
     {
-        $organizations = $this->entityManager->getRepository(Organization::class)->findAll();
+        $organizations = $this->entityManager
+            ->getRepository(Organization::class)
+            ->findAll();
 
-        return $this->success($organizations, 200, context:['groups' => [Permissions::ORGANIZATION_VIEW->value]]);
+        $organizations = array_values(
+            array_filter($organizations, fn($org) => !$org->isSystemOrganization())
+        );
+
+        return $this->success(
+            $organizations,
+            200,
+            context: ['groups' => [Permissions::ORGANIZATION_VIEW->value]]
+        );
     }
 
     #[Route('/{id}', name: 'api_organizations_show', methods: ['GET'])]
@@ -38,6 +48,10 @@ class OrganizationController extends AbstractController
 
         if (!$organization) {
             return $this->error('Organization not found', 'not_found', 404);
+        }
+
+        if ($organization->isSystemOrganization()) {
+            return $this->error('Cannot access a system organization', 'forbidden', 403);
         }
 
         if (!in_array(Roles::SUPER_ADMIN->value, $currentUser->getRoles(), true) &&
@@ -74,6 +88,10 @@ class OrganizationController extends AbstractController
             return $this->error('Organization not found', 'not_found', 404);
         }
 
+        if ($organization->isSystemOrganization()) {
+            return $this->error('Cannot access a system organization', 'forbidden', 403);
+        }
+
         if (!in_array(Roles::SUPER_ADMIN->value, $currentUser->getRoles(), true) &&
             $organization !== $currentUser->getOrganization()
         ) {
@@ -98,6 +116,10 @@ class OrganizationController extends AbstractController
 
         if (!$organization) {
             return $this->error('Organization not found', 'not_found', 404);
+        }
+
+        if ($organization->isSystemOrganization()) {
+            return $this->error('Cannot delete a system organization', 'forbidden', 403);
         }
 
         $this->entityManager->remove($organization);

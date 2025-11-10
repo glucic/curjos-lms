@@ -1,5 +1,5 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box, Stack } from "@mui/material";
 import { redirect, Link as RouterLink, useNavigate } from "react-router-dom";
 import SchoolIcon from "@mui/icons-material/School";
 import { useAuthContext } from "@/context/AuthContext";
@@ -26,30 +26,56 @@ const Navbar: React.FC = () => {
                 </Typography>
                 <Box>
                     {isAuthenticated && user && (
-                        <>
-                            <Button
-                                color="inherit"
-                                component={RouterLink}
-                                to="/profile"
+                        <Stack
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={1.5}
+                            alignItems="center"
+                            justifyContent="flex-end"
+                        >
+                            <Typography
+                                variant="h6"
+                                component="div"
+                                sx={{ flexGrow: 1, minWidth: 120 }}
                             >
                                 {user.firstName} {user.lastName}
-                            </Button>
+                            </Typography>
+
                             <RoleGuard
                                 allowedRoles={["ROLE_ADMIN"]}
                                 redirect={false}
                             >
                                 <Button
                                     color="inherit"
+                                    size="small"
                                     component={RouterLink}
-                                    to="/course/create"
+                                    to={`/organization/${user.organization?.id}`}
                                 >
                                     Manage {user.organization?.name}
                                 </Button>
                             </RoleGuard>
-                            <Button color="inherit" onClick={handleLogout}>
+
+                            <RoleGuard
+                                allowedRoles={["ROLE_SUPER_ADMIN"]}
+                                redirect={false}
+                            >
+                                <Button
+                                    color="inherit"
+                                    size="small"
+                                    component={RouterLink}
+                                    to="/super"
+                                >
+                                    Super Admin Panel
+                                </Button>
+                            </RoleGuard>
+
+                            <Button
+                                color="inherit"
+                                size="small"
+                                onClick={handleLogout}
+                            >
                                 Logout
                             </Button>
-                        </>
+                        </Stack>
                     )}
                 </Box>
             </Toolbar>

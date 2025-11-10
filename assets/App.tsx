@@ -9,9 +9,15 @@ import CreateCourse from "@/pages/CreateCourse";
 import CreateLesson from "@/pages/CreateLesson";
 import Lesson from "@/pages/Lesson";
 import RoleGuard from "@/RoleGuard";
-import { Edit } from "@mui/icons-material";
 import EditCourse from "./pages/EditCourse";
 import EditLesson from "./pages/EditLesson";
+import SuperAdminPanel from "./pages/SuperAdminPanel";
+import Organization from "./pages/Organization";
+import EditOrganization from "./pages/EditOrganization";
+import { Create } from "@mui/icons-material";
+import CreateOrganization from "./pages/CreateOrganization";
+import EditUser from "./pages/EditUser";
+import CreateUser from "./pages/CreateUser";
 
 const App: React.FC = () => {
     return (
@@ -103,6 +109,56 @@ const App: React.FC = () => {
                             ]}
                         >
                             <EditLesson />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="/super"
+                    element={
+                        <RoleGuard allowedRoles={["ROLE_SUPER_ADMIN"]}>
+                            <SuperAdminPanel />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="/organization/:id"
+                    element={
+                        <RoleGuard
+                            allowedRoles={["ROLE_SUPER_ADMIN", "ROLE_ADMIN"]}
+                        >
+                            <Organization />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="/organization/:id/edit"
+                    element={
+                        <RoleGuard allowedRoles={["ROLE_SUPER_ADMIN"]}>
+                            <EditOrganization />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="/organization/create"
+                    element={
+                        <RoleGuard allowedRoles={["ROLE_SUPER_ADMIN"]}>
+                            <CreateOrganization />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="organization/:organizationId/user/create"
+                    element={
+                        <RoleGuard allowedRoles={["ADMIN", "ROLE_SUPER_ADMIN"]}>
+                            <CreateUser />
+                        </RoleGuard>
+                    }
+                />
+                <Route
+                    path="organization/:organizationId/user/:userId/edit"
+                    element={
+                        <RoleGuard allowedRoles={["ADMIN", "ROLE_SUPER_ADMIN"]}>
+                            <EditUser />
                         </RoleGuard>
                     }
                 />
