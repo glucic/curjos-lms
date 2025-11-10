@@ -86,4 +86,35 @@ php -S localhost:8000 -t public
 
 ---
 
-For more details, see the documentation or contact the maintainer.
+## Demo Data & Entity Relationships
+
+Upon installation, the system loads demo data for quick evaluation and development:
+
+-   **Organizations:**
+    -   `System` (for system admin)
+    -   `Demo University` (sample organization)
+-   **Users:**
+    -   System Admin: `super@system.local` (role: SUPER_ADMIN, password: SuperSecret123!)
+    -   Demo Admin: `admin@demo.com` (role: ADMIN)
+    -   Demo Instructor: `instructor@demo.com` (role: INSTRUCTOR)
+    -   Demo Student: `student@demo.com` (role: STUDENT)
+-   **Roles:**
+    -   Roles are global and each user can have only one role (e.g., SUPER_ADMIN, ADMIN, INSTRUCTOR, STUDENT)
+-   **Courses & Lessons:**
+    -   Demo course: "Introduction to Leadership" with sample lessons
+
+### Entity Relationships
+
+-   Each user belongs to one organization and has one global role
+-   Organizations have many users and courses
+-   Courses belong to organizations and have many lessons
+-   Roles have many permissions
+
+### System Admin
+
+-   The system admin user (`super@system.local`) has full access to all organizations, users, and data
+-   Use this account for initial setup and system-wide administration
+
+---
+
+For more details feel free to contact me at gabriel.lucic@pm.me!
